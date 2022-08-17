@@ -174,16 +174,9 @@ struct HumanColors { uint32_t rgb; const char* keyword; } static const human_col
     { COLOR_BURLYWOOD, "burlywood" },
     { COLOR_LIGHTCYAN, "lightcyan" },
     { COLOR_LAVENDER, "lavender" },
-    { COLOR_DARKSALMON, "darksalmon" },
-    { COLOR_VIOLET, "violet" },
-    { COLOR_PALEGOLDENROD, "palegoldenrod" },
-    { COLOR_LIGHTCORAL, "lightcoral" },
-    { COLOR_KHAKI, "khaki" },
-    { COLOR_ALICEBLUE, "aliceblue" },
-    { COLOR_HONEYDEW, "honeydew" },
-    { COLOR_AZURE, "azure" },
-    { COLOR_SANDYBROWN, "sandybrown" },
-    { COLOR_WHEAT, "wheat" },
+  
+This is  a test modification
+  
     { COLOR_BEIGE, "beige" },
     { COLOR_WHITESMOKE, "whitesmoke" },
     { COLOR_MINTCREAM, "mintcream" },
