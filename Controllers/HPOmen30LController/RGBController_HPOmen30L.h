@@ -12,7 +12,7 @@
 class RGBController_HPOmen30L : public RGBController
 {
 public:
-    RGBController_HPOmen30L(HPOmen30LController* omen_ptr);
+    RGBController_HPOmen30L(HPOmen30LController* controller_ptr);
     ~RGBController_HPOmen30L();
 
     void        SetupZones();
@@ -23,9 +23,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    HPOmen30LController*   omen;
+    HPOmen30LController* controller;
 };

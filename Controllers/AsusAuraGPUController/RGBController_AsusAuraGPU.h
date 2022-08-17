@@ -14,7 +14,7 @@
 class RGBController_AuraGPU : public RGBController
 {
 public:
-    RGBController_AuraGPU(AuraGPUController* aura_gpu_ptr);
+    RGBController_AuraGPU(AuraGPUController* controller_ptr);
     ~RGBController_AuraGPU();
 
     void        SetupZones();
@@ -25,11 +25,10 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    AuraGPUController* aura_gpu;
+    AuraGPUController* controller;
 
     int        GetDeviceMode();
 };

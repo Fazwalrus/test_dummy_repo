@@ -8,6 +8,17 @@
 
 #include "RGBController_BlinkyTape.h"
 
+/**------------------------------------------------------------------*\
+    @name Blinky Tape
+    @category LEDStrip
+    @type Serial
+    @save :x:
+    @direct :white_check_mark:
+    @effects :x:
+    @detectors DetectBlinkyTapeControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
 RGBController_BlinkyTape::RGBController_BlinkyTape(BlinkyTapeController* controller_ptr)
 {
     controller  = controller_ptr;
@@ -124,11 +135,6 @@ void RGBController_BlinkyTape::UpdateZoneLEDs(int /*zone*/)
 void RGBController_BlinkyTape::UpdateSingleLED(int /*led*/)
 {
     controller->SetLEDs(colors);
-}
-
-void RGBController_BlinkyTape::SetCustomMode()
-{
-
 }
 
 void RGBController_BlinkyTape::DeviceUpdateMode()

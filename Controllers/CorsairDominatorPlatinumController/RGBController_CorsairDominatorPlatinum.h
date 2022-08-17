@@ -14,7 +14,7 @@
 class RGBController_CorsairDominatorPlatinum : public RGBController
 {
 public:
-    RGBController_CorsairDominatorPlatinum(CorsairDominatorPlatinumController* corsair_ptr);
+    RGBController_CorsairDominatorPlatinum(CorsairDominatorPlatinumController* controller_ptr);
     ~RGBController_CorsairDominatorPlatinum();
 
     void SetupZones();
@@ -25,9 +25,8 @@ public:
     void UpdateZoneLEDs(int zone);
     void UpdateSingleLED(int led);
 
-    void SetCustomMode();
     void DeviceUpdateMode();
 
 private:
-    CorsairDominatorPlatinumController* corsair;
+    CorsairDominatorPlatinumController* controller;
 };

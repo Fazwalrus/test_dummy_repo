@@ -18,7 +18,7 @@
 class RGBController_HyperXAlloyElite : public RGBController
 {
 public:
-    RGBController_HyperXAlloyElite(HyperXAlloyEliteController* hyperx_ptr);
+    RGBController_HyperXAlloyElite(HyperXAlloyEliteController* controller_ptr);
     ~RGBController_HyperXAlloyElite();
 
     void        SetupZones();
@@ -29,7 +29,6 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
     void        KeepaliveThreadFunction();

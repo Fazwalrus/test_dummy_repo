@@ -14,7 +14,7 @@
 class RGBController_LogitechGProKeyboard : public RGBController
 {
 public:
-    RGBController_LogitechGProKeyboard(LogitechGProKeyboardController* logitech_ptr);
+    RGBController_LogitechGProKeyboard(LogitechGProKeyboardController* controller_ptr);
     ~RGBController_LogitechGProKeyboard();
 
     void        SetupZones();
@@ -25,9 +25,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    LogitechGProKeyboardController*   logitech;
+    LogitechGProKeyboardController* controller;
 };

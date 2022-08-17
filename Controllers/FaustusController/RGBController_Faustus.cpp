@@ -3,6 +3,17 @@
 #include <dirent.h>
 #include <string.h>
 
+/**------------------------------------------------------------------*\
+    @name ASUS TUF Keyboard (Faustus)
+    @category Keyboard
+    @type File Stream
+    @save :x:
+    @direct :x:
+    @effects :white_check_mark:
+    @detectors DetectFaustusControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
 RGBController_Faustus::RGBController_Faustus(const std::string& dev_path)
 {
     name        = "ASUS TUF Keyboard";
@@ -135,11 +146,6 @@ void RGBController_Faustus::UpdateZoneLEDs(int /*zone*/)
 void RGBController_Faustus::UpdateSingleLED(int /*led*/)
 {
     DeviceUpdateLEDs();
-}
-
-void RGBController_Faustus::SetCustomMode()
-{
-    SetMode(0);
 }
 
 void RGBController_Faustus::DeviceUpdateMode()

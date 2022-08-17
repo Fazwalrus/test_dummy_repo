@@ -17,7 +17,7 @@
 class RGBController_Alienware : public RGBController
 {
 public:
-    RGBController_Alienware(AlienwareController* alienware_ptr);
+    RGBController_Alienware(AlienwareController* controller_ptr);
 
     void        SetupZones();
 
@@ -29,9 +29,7 @@ public:
 
     void        DeviceUpdateMode();
 
-    void        SetCustomMode();
-
 private:
-    AlienwareController*                    alienware;
+    AlienwareController*                    controller;
     std::chrono::steady_clock::time_point   last_packet_ts;
 };

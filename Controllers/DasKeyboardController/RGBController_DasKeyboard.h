@@ -24,27 +24,21 @@ enum
 class RGBController_DasKeyboard : public RGBController
 {
 public:
-    RGBController_DasKeyboard(DasKeyboardController *das_ptr);
-
+    RGBController_DasKeyboard(DasKeyboardController* controller_ptr);
     ~RGBController_DasKeyboard();
 
     void SetupZones();
-
     void ResizeZone(int zone, int new_size);
 
     void DeviceUpdateLEDs();
-
     void UpdateZoneLEDs(int zone);
-
     void UpdateSingleLED(int led);
-
-    void SetCustomMode();
 
     void DeviceUpdateMode();
 
 private:
-    DasKeyboardController *das;
+    DasKeyboardController*  controller;
 
-    std::vector<RGBColor> double_buffer;
-    bool                  updateDevice;
+    std::vector<RGBColor>   double_buffer;
+    bool                    updateDevice;
 };

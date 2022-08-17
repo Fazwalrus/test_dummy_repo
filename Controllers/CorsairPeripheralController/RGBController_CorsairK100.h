@@ -13,7 +13,7 @@
 class RGBController_CorsairK100 : public RGBController
 {
 public:
-    RGBController_CorsairK100(CorsairK100Controller* corsair_ptr);
+    RGBController_CorsairK100(CorsairK100Controller* controller_ptr);
     ~RGBController_CorsairK100();
 
     void SetupZones();
@@ -24,15 +24,15 @@ public:
     void UpdateSingleLED(int led);
 
     void DeviceUpdateMode();
-    void SetCustomMode();
-    void        KeepaliveThread();
+
+    void KeepaliveThread();
 
 private:
-    CorsairK100Controller*          corsair;
-    CorsairKeyboardType             logical_layout;
+    CorsairK100Controller*                              controller;
+    CorsairKeyboardType                                 logical_layout;
 
-    std::thread*                    keepalive_thread;
-    std::atomic<bool>               keepalive_thread_run;
+    std::thread*                                        keepalive_thread;
+    std::atomic<bool>                                   keepalive_thread_run;
     std::chrono::time_point<std::chrono::steady_clock>  last_update_time;
 
 };

@@ -14,9 +14,8 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     ui->setupUi(this);
 
     /*---------------------------------------------------------*\
-    | Load theme settings (Windows only)                        |
+    | Load theme settings                                       |
     \*---------------------------------------------------------*/
-#ifdef _WIN32
     ui->ComboBoxTheme->addItems({"auto", "light", "dark"});
 
     json theme_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("Theme");
@@ -32,15 +31,16 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     }
 
     theme_initialized = true;
-#else
-    ui->ComboBoxTheme->hide();
-    ui->ThemeLabel->hide();
-#endif
 
     /*---------------------------------------------------------*\
     | Load user interface settings                              |
     \*---------------------------------------------------------*/
     json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+
+    if(ui_settings.contains("greyscale_tray_icon"))
+    {
+        ui->CheckboxTrayIconGreyscale->setChecked(ui_settings["greyscale_tray_icon"]);
+    }
 
     if(ui_settings.contains("minimize_on_close"))
     {
@@ -83,22 +83,21 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     }
 
     /*---------------------------------------------------------*\
-    | Load AutoStart settings                                   |
+    | Load drivers settings (Windows only)                      |
     \*---------------------------------------------------------*/
-    ProfileManager* profile_manager = ResourceManager::get()->GetProfileManager();
+#ifdef _WIN32
+    json drivers_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("Drivers");
 
-    /*---------------------------------------------------------*\
-    | Load profiles into combo box                              |
-    \*---------------------------------------------------------*/
-    if(profile_manager != NULL)
+    if(drivers_settings.contains("amd_smbus_reduce_cpu"))
     {
-        ui->ComboBoxAutoStartProfile->clear();
-
-        for(std::size_t profile_index = 0; profile_index < profile_manager->profile_list.size(); profile_index++)
-        {
-            ui->ComboBoxAutoStartProfile->addItem(profile_manager->profile_list[profile_index].c_str());
-        }
+        ui->CheckboxAMDSMBusReduceCPU->setChecked(drivers_settings["amd_smbus_reduce_cpu"]);
     }
+#else
+    ui->DriversSettingsLabel->hide();
+    ui->CheckboxAMDSMBusReduceCPU->hide();
+#endif
+
+    UpdateProfiles();
 
     /*---------------------------------------------------------*\
     | Make sure autostart settings exist                        |
@@ -115,6 +114,9 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     /*---------------------------------------------------------*\
     | Text boxes                                                |
     \*---------------------------------------------------------*/
+    ui->TextServerHost->setText(QString::fromStdString(autostart_settings["host"]));
+    ui->TextServerHost->setEnabled(autostart_settings["setserverhost"]);
+
     ui->TextServerPort->setText(QString::fromStdString(autostart_settings["port"]));
     ui->TextServerPort->setEnabled(autostart_settings["setserverport"]);
 
@@ -133,6 +135,7 @@ OpenRGBSettingsPage::OpenRGBSettingsPage(QWidget *parent) :
     ui->CheckboxAutoStartMinimized->setChecked(autostart_settings["setminimized"]);
     ui->CheckboxAutoStartClient->setChecked(autostart_settings["setclient"]);
     ui->CheckboxAutoStartServer->setChecked(autostart_settings["setserver"]);
+    ui->CheckboxAutoStartSetServerHost->setChecked(autostart_settings["setserverhost"]);
     ui->CheckboxAutoStartSetServerPort->setChecked(autostart_settings["setserverport"]);
     ui->CheckboxAutoStartCustom->setChecked(autostart_settings["setcustom"]);
 
@@ -145,6 +148,88 @@ OpenRGBSettingsPage::~OpenRGBSettingsPage()
     delete ui;
 }
 
+void OpenRGBSettingsPage::UpdateProfiles()
+{
+    /*---------------------------------------------------------*\
+    | Load AutoStart settings                                   |
+    \*---------------------------------------------------------*/
+    ProfileManager* profile_manager = ResourceManager::get()->GetProfileManager();
+
+    /*---------------------------------------------------------*\
+    | Load profiles into combo box                              |
+    \*---------------------------------------------------------*/
+    if(profile_manager != NULL)
+    {
+        ui->ComboBoxAutoStartProfile->blockSignals(true);
+        ui->ComboBoxExitProfile->blockSignals(true);
+
+        ui->ComboBoxAutoStartProfile->clear();
+        ui->ComboBoxExitProfile->clear();
+
+        for(std::size_t profile_index = 0; profile_index < profile_manager->profile_list.size(); profile_index++)
+        {
+            QString new_profile = QString(profile_manager->profile_list[profile_index].c_str());
+
+            ui->ComboBoxAutoStartProfile->addItem(new_profile);
+            ui->ComboBoxExitProfile->addItem(new_profile);
+        }
+
+        ui->ComboBoxAutoStartProfile->blockSignals(false);
+        ui->ComboBoxExitProfile->blockSignals(false);
+    }
+
+    /*---------------------------------------------------------*\
+    | Load user interface settings                              |
+    \*---------------------------------------------------------*/
+    json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
+
+    if(autostart_settings.contains("profile"))
+    {
+        /*-----------------------------------------------------*\
+        | Set the profile name from settings and check the      |
+        |   profile combobox for a match                        |
+        \*-----------------------------------------------------*/
+        std::string profile_name    = autostart_settings["profile"].get<std::string>();
+        int profile_index           = ui->ComboBoxAutoStartProfile->findText(QString::fromStdString(profile_name));
+
+        if(profile_index > -1)
+        {
+            ui->ComboBoxAutoStartProfile->setCurrentIndex(profile_index);
+        }
+    }
+
+    /*---------------------------------------------------------*\
+    | Load user interface settings                              |
+    \*---------------------------------------------------------*/
+    json ui_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+
+    if(ui_settings.contains("exit_profile"))
+    {
+        if(ui_settings["exit_profile"].contains("set_on_exit"))
+        {
+            bool is_set_on_exit = ui_settings["exit_profile"]["set_on_exit"];
+
+            ui->CheckboxSetOnExit->setChecked(is_set_on_exit);
+            ui->ComboBoxExitProfile->setEnabled(is_set_on_exit);
+        }
+
+        if(ui_settings["exit_profile"].contains("profile_name"))
+        {
+            /*-----------------------------------------------------*\
+            | Set the profile name from settings and check the      |
+            |   profile combobox for a match                        |
+            \*-----------------------------------------------------*/
+            std::string profile_name    = ui_settings["exit_profile"]["profile_name"].get<std::string>();
+            int profile_index           = ui->ComboBoxExitProfile->findText(QString::fromStdString(profile_name));
+
+            if(profile_index > -1)
+            {
+                ui->ComboBoxExitProfile->setCurrentIndex(profile_index);
+            }
+        }
+    }
+}
+
 void OpenRGBSettingsPage::on_ComboBoxTheme_currentTextChanged(const QString theme)
 {
     if(theme_initialized)
@@ -154,6 +239,18 @@ void OpenRGBSettingsPage::on_ComboBoxTheme_currentTextChanged(const QString them
         ResourceManager::get()->GetSettingsManager()->SetSettings("Theme", theme_settings);
         SaveSettings();
     }
+}
+
+void OpenRGBSettingsPage::on_CheckboxTrayIconGreyscale_clicked()
+{
+    json ui_settings    = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    bool tray_icon      = ui->CheckboxTrayIconGreyscale->isChecked();
+
+    ui_settings["greyscale_tray_icon"] = tray_icon;
+    ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
+    SaveSettings();
+
+    emit TrayIconChanged(tray_icon);
 }
 
 void OpenRGBSettingsPage::on_CheckboxMinimizeOnClose_clicked()
@@ -188,13 +285,32 @@ void Ui::OpenRGBSettingsPage::on_CheckboxRunZoneChecks_clicked()
     SaveSettings();
 }
 
+void Ui::OpenRGBSettingsPage::on_CheckboxSetOnExit_clicked(bool checked)
+{
+    json ui_settings                            = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    ui_settings["exit_profile"]["set_on_exit"]  = checked;
+    ui_settings["exit_profile"]["profile_name"] = ui->ComboBoxExitProfile->currentText().toStdString();
+    ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
+    SaveSettings();
+
+    ui->ComboBoxExitProfile->setEnabled(checked);
+}
+
+void Ui::OpenRGBSettingsPage::on_ComboBoxExitProfile_currentTextChanged(const QString exit_profile_name)
+{
+    json ui_settings                            = ResourceManager::get()->GetSettingsManager()->GetSettings("UserInterface");
+    ui_settings["exit_profile"]["profile_name"] = exit_profile_name.toStdString();
+    ResourceManager::get()->GetSettingsManager()->SetSettings("UserInterface", ui_settings);
+    SaveSettings();
+}
+
 void Ui::OpenRGBSettingsPage::on_CheckboxAutoStart_clicked()
 {
     if(autostart_initialized)
     {
         json autostart_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("AutoStart");
         autostart_settings["enabled"] = ui->CheckboxAutoStart->isChecked();
-        
+
         if(autostart_settings["enabled"])
         {
             RemediateAutoStartProfile(autostart_settings);
@@ -219,6 +335,12 @@ void Ui::OpenRGBSettingsPage::on_CheckboxAutoStartServer_clicked()
     SaveAutoStartSetting("setserver", ui->CheckboxAutoStartServer->isChecked());
 }
 
+void Ui::OpenRGBSettingsPage::on_CheckboxAutoStartSetServerHost_clicked()
+{
+    SaveAutoStartSetting("setserverhost", ui->CheckboxAutoStartSetServerHost->isChecked());
+    ui->TextServerHost->setEnabled(ui->CheckboxAutoStartSetServerHost->isChecked());
+}
+
 void Ui::OpenRGBSettingsPage::on_CheckboxAutoStartSetServerPort_clicked()
 {
     SaveAutoStartSetting("setserverport", ui->CheckboxAutoStartSetServerPort->isChecked());
@@ -241,6 +363,11 @@ void Ui::OpenRGBSettingsPage::on_CheckboxAutoStartCustom_clicked()
 {
     SaveAutoStartSetting("setcustom", ui->CheckboxAutoStartCustom->isChecked());
     ui->TextCustomArgs->setEnabled(ui->CheckboxAutoStartCustom->isChecked());
+}
+
+void Ui::OpenRGBSettingsPage::on_TextServerHost_textChanged(QString host)
+{
+    SaveAutoStartSetting("host", host);
 }
 
 void Ui::OpenRGBSettingsPage::on_TextServerPort_textChanged(QString port)
@@ -299,9 +426,11 @@ void OpenRGBSettingsPage::SetAutoStartVisibility(bool visible)
         ui->CheckboxAutoStartMinimized->hide();
         ui->CheckboxAutoStartProfile->hide();
         ui->CheckboxAutoStartServer->hide();
+        ui->CheckboxAutoStartSetServerHost->hide();
         ui->CheckboxAutoStartSetServerPort->hide();
         ui->TextCustomArgs->hide();
         ui->TextClientHost->hide();
+        ui->TextServerHost->hide();
         ui->TextServerPort->hide();
         ui->AutoStartStatusLabel->hide();
     }
@@ -313,9 +442,11 @@ void OpenRGBSettingsPage::SetAutoStartVisibility(bool visible)
         ui->CheckboxAutoStartMinimized->show();
         ui->CheckboxAutoStartProfile->show();
         ui->CheckboxAutoStartServer->show();
+        ui->CheckboxAutoStartSetServerHost->show();
         ui->CheckboxAutoStartSetServerPort->show();
         ui->TextCustomArgs->show();
         ui->TextClientHost->show();
+        ui->TextServerHost->show();
         ui->TextServerPort->show();
         ui->AutoStartStatusLabel->show();
     }
@@ -326,6 +457,7 @@ void OpenRGBSettingsPage::ConfigureAutoStart()
     std::map<std::string, std::tuple<std::string, std::string, bool>> autostart_map = {
         {"setminimized", {"--startminimized","",false}},
         {"setserver", {"--server","",false}},
+        {"setserverhost", {"--server-host","host",false}},
         {"setserverport", {"--server-port","port",false}},
         {"setclient", {"--client","client",false}},
         {"setprofile", {"--profile","profile",true}},
@@ -406,7 +538,7 @@ void OpenRGBSettingsPage::ConfigureAutoStart()
 
         if (!auto_start.EnableAutoStart(auto_start_info))
         {
-            ui->AutoStartStatusLabel->setText("A problem occurred enabling Start At Login.");
+            ui->AutoStartStatusLabel->setText(tr("A problem occurred enabling Start At Login."));
             ui->AutoStartStatusLabel->show();
             SetAutoStartVisibility(true);
         }
@@ -421,6 +553,7 @@ void OpenRGBSettingsPage::CreateAutoStartSettings()
 {
     std::map<std::string, std::string> autostart_default_map_string = {
         {"custom", ""},
+        {"host", "0.0.0.0"},
         {"port", "6742"},
         {"client","localhost:6742"},
         {"profile",ui->ComboBoxAutoStartProfile->count() > 0 ? ui->ComboBoxAutoStartProfile->itemText(0).toStdString(): ""}
@@ -431,6 +564,7 @@ void OpenRGBSettingsPage::CreateAutoStartSettings()
         {"setminimized", false},
         {"setclient", false},
         {"setserver", false},
+        {"setserverhost", false},
         {"setserverport", false},
         {"setcustom", false},
         {"setprofile", false},
@@ -492,13 +626,13 @@ void OpenRGBSettingsPage::RemediateAutoStartProfile(json &autostart_settings)
             ui->ComboBoxAutoStartProfile->findText(QString::fromStdString(autostart_settings["profile"])) == -1))
     {
         autostart_settings["profile"] = ui->ComboBoxAutoStartProfile->itemText(0).toStdString();
-        
+
         if(autostart_settings["enabled"])
         {
             autostart_settings["setprofile"] = false;
-            
+
             ResourceManager::get()->GetSettingsManager()->SetSettings("AutoStart", autostart_settings);
-            
+
             ConfigureAutoStart();
             SaveSettings();
         }
@@ -527,6 +661,14 @@ void Ui::OpenRGBSettingsPage::on_CheckboxLogConsole_clicked()
     json log_manager_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("LogManager");
     log_manager_settings["log_console"] = ui->CheckboxLogConsole->isChecked();
     ResourceManager::get()->GetSettingsManager()->SetSettings("LogManager", log_manager_settings);
+    SaveSettings();
+}
+
+void Ui::OpenRGBSettingsPage::on_CheckboxAMDSMBusReduceCPU_clicked()
+{
+    json drivers_settings = ResourceManager::get()->GetSettingsManager()->GetSettings("Drivers");
+    drivers_settings["amd_smbus_reduce_cpu"] = ui->CheckboxAMDSMBusReduceCPU->isChecked();
+    ResourceManager::get()->GetSettingsManager()->SetSettings("Drivers", drivers_settings);
     SaveSettings();
 }
 

@@ -14,7 +14,7 @@
 class RGBController_CorsairPeripheral : public RGBController
 {
 public:
-    RGBController_CorsairPeripheral(CorsairPeripheralController* corsair_ptr);
+    RGBController_CorsairPeripheral(CorsairPeripheralController* controller_ptr, bool supports_hardware_modes);
     ~RGBController_CorsairPeripheral();
 
     int         physical_layout;
@@ -28,9 +28,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    CorsairPeripheralController*   corsair;
+    CorsairPeripheralController* controller;
 };

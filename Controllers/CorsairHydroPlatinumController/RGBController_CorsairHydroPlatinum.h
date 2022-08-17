@@ -14,7 +14,7 @@
 class RGBController_CorsairHydroPlatinum : public RGBController
 {
 public:
-    RGBController_CorsairHydroPlatinum(CorsairHydroPlatinumController* corsair_ptr);
+    RGBController_CorsairHydroPlatinum(CorsairHydroPlatinumController* controller_ptr);
 
     void        SetupZones();
 
@@ -24,11 +24,10 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    CorsairHydroPlatinumController* corsair;
+    CorsairHydroPlatinumController* controller;
 
     void        Init_Controller();
 };

@@ -20,21 +20,28 @@ public:
     ~RGBController_MSIMysticLight185();
 
     void        SetupZones();
-
     void        ResizeZone(int zone, int new_size);
 
     void        DeviceUpdateLEDs();
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
+    void        DeviceSaveMode();
 
 private:
     void        SetupModes();
-    void        UpdateLed(int zone, int led);
-    MSI_ZONE    ZoneFromPos(int zone);
-    void        SetupMode(const char *name, MSI_MODE mode, unsigned int flags);
+    void        UpdateLed
+                    (
+                    int zone,
+                    int led
+                    );
+    void        SetupMode
+                    (
+                    const char      *name,
+                    MSI_MODE        mode,
+                    unsigned int    flags
+                    );
 
     MSIMysticLight185Controller*    controller;
 };

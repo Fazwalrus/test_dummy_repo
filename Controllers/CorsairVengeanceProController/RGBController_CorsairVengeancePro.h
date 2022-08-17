@@ -15,7 +15,7 @@
 class RGBController_CorsairVengeancePro : public RGBController
 {
 public:
-    RGBController_CorsairVengeancePro(CorsairVengeanceProController* corsair_ptr);
+    RGBController_CorsairVengeancePro(CorsairVengeanceProController* controller_ptr);
     ~RGBController_CorsairVengeancePro();
 
     void        SetupZones();
@@ -26,9 +26,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    CorsairVengeanceProController* corsair;
+    CorsairVengeanceProController* controller;
 };

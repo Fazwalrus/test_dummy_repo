@@ -8,6 +8,8 @@
 \*-----------------------------------------*/
 
 #include "AsusAuraUSBController.h"
+#include "LogManager.h"
+
 #include <cstring>
 #include <stdexcept>
 
@@ -24,6 +26,7 @@ AuraUSBController::~AuraUSBController()
 {
     hid_close(dev);
 }
+
 unsigned int AuraUSBController::GetChannelCount()
 {
     return(device_info.size());
@@ -88,18 +91,21 @@ void AuraUSBController::GetConfigTable()
     {
         memcpy(config_table, &usb_buf[4], 60);
 
+        LOG_DEBUG("[%s] ASUS Aura USB config table:", device_name);
+
         for(int i = 0; i < 60; i+=6)
         {
-            printf("%02X %02X %02X %02X %02X %02X\r\n", config_table[i + 0],
-                                                        config_table[i + 1],
-                                                        config_table[i + 2],
-                                                        config_table[i + 3],
-                                                        config_table[i + 4],
-                                                        config_table[i + 5]);
+            LOG_DEBUG("[%s] %02X %02X %02X %02X %02X %02X", device_name,
+                                                            config_table[i + 0],
+                                                            config_table[i + 1],
+                                                            config_table[i + 2],
+                                                            config_table[i + 3],
+                                                            config_table[i + 4],
+                                                            config_table[i + 5]);
         }
     }
     else
-    {       
+    {
         LOG_INFO("[%s] Could not read config table, can not add device", device_name);
         delete this;
     }

@@ -14,7 +14,7 @@
 class RGBController_LogitechGPowerPlay : public RGBController
 {
 public:
-    RGBController_LogitechGPowerPlay(LogitechGLightsyncController* logitech_ptr);
+    RGBController_LogitechGPowerPlay(LogitechGLightsyncController* controller_ptr);
     ~RGBController_LogitechGPowerPlay();
 
     void        SetupZones();
@@ -25,9 +25,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    LogitechGLightsyncController*   logitech;
+    LogitechGLightsyncController* controller;
 };

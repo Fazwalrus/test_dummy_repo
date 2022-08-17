@@ -15,7 +15,7 @@
 class RGBController_LEDStrip : public RGBController
 {
 public:
-    RGBController_LEDStrip(LEDStripController* ledstrip_ptr);
+    RGBController_LEDStrip(LEDStripController* controller_ptr);
     ~RGBController_LEDStrip();
 
     void        SetupZones();
@@ -26,9 +26,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    LEDStripController* strip;
+    LEDStripController* controller;
 };

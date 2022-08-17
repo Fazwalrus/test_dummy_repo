@@ -14,7 +14,7 @@
 class RGBController_GalaxGPU : public RGBController
 {
 public:
-    RGBController_GalaxGPU(GalaxGPUController* galax_gpu_ptr);
+    RGBController_GalaxGPU(GalaxGPUController* controller_ptr);
     ~RGBController_GalaxGPU();
 
     void        SetupZones();
@@ -25,11 +25,10 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    GalaxGPUController* galax_gpu;
+    GalaxGPUController* controller;
 
     int        GetDeviceMode();
 };

@@ -15,7 +15,7 @@
 class RGBController_RGBFusion2DRAM : public RGBController
 {
 public:
-    RGBController_RGBFusion2DRAM(RGBFusion2DRAMController* rgb_fusion_ptr);
+    RGBController_RGBFusion2DRAM(RGBFusion2DRAMController* controller_ptr);
     ~RGBController_RGBFusion2DRAM();
 
     void        SetupZones();
@@ -26,9 +26,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    RGBFusion2DRAMController* rgb_fusion;
+    RGBFusion2DRAMController* controller;
 };

@@ -14,7 +14,7 @@
 class RGBController_AuraCore : public RGBController
 {
 public:
-    RGBController_AuraCore(AuraCoreController* aura_ptr);
+    RGBController_AuraCore(AuraCoreController* controller_ptr);
     ~RGBController_AuraCore();
 
     void        SetupKeyboard();
@@ -27,9 +27,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    AuraCoreController* aura;
+    AuraCoreController* controller;
 };

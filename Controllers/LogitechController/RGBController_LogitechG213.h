@@ -13,7 +13,7 @@
 class RGBController_LogitechG213 : public RGBController
 {
 public:
-    RGBController_LogitechG213(LogitechG213Controller* logitech_ptr);
+    RGBController_LogitechG213(LogitechG213Controller* controller_ptr);
     ~RGBController_LogitechG213();
 
     void        SetupZones();
@@ -24,9 +24,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    LogitechG213Controller*   logitechG213;
+    LogitechG213Controller* controller;
 };

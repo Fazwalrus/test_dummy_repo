@@ -16,7 +16,7 @@
 class RGBController_LogitechG560 : public RGBController
 {
 public:
-    RGBController_LogitechG560(LogitechG560Controller* logitech_ptr);
+    RGBController_LogitechG560(LogitechG560Controller* controller_ptr);
 
     void        SetupZones();
 
@@ -26,9 +26,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    LogitechG560Controller*   logitech;
+    LogitechG560Controller* controller;
 };

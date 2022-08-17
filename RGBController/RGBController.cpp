@@ -1539,6 +1539,37 @@ void RGBController::DeviceUpdateLEDs()
 
 }
 
+void RGBController::SetCustomMode()
+{
+    /*-------------------------------------------------*\
+    | Search the Controller's mode list for a suitable  |
+    | per-LED custom mode in the following order:       |
+    | 1.    Direct                                      |
+    | 2.    Custom                                      |
+    | 3.    Static                                      |
+    \*-------------------------------------------------*/
+    #define NUM_CUSTOM_MODE_NAMES 3
+
+    const std::string custom_mode_names[] =
+    {
+        "Direct",
+        "Custom",
+        "Static"
+    };
+
+    for(unsigned int custom_mode_idx = 0; custom_mode_idx < NUM_CUSTOM_MODE_NAMES; custom_mode_idx++)
+    {
+        for(unsigned int mode_idx = 0; mode_idx < modes.size(); mode_idx++)
+        {
+            if(modes[mode_idx].name == custom_mode_names[custom_mode_idx] && modes[mode_idx].color_mode == MODE_COLORS_PER_LED)
+            {
+                active_mode = mode_idx;
+                return;
+            }
+        }
+    }
+}
+
 void RGBController::DeviceUpdateMode()
 {
 
@@ -1609,6 +1640,8 @@ std::string device_type_to_str(device_type type)
         return "Storage";
     case DEVICE_TYPE_VIRTUAL:
         return "Virtual";
+    case DEVICE_TYPE_CASE:
+        return "Case";
     default:
         return "Unknown";
     }

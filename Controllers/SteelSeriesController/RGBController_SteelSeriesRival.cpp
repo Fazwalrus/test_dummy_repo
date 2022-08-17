@@ -35,13 +35,24 @@ static const steelseries_rival_led_info rival_600_leds[]=
     {"Right bottom",    0x07},
 };
 
+/**------------------------------------------------------------------*\
+    @name Steel Series Rival
+    @category Mouse
+    @type USB
+    @save :x:
+    @direct :white_check_mark:
+    @effects :white_check_mark:
+    @detectors DetectSteelSeriesRival100,DetectSteelSeriesRival300,DetectSteelSeriesRival600,DetectSteelSeriesRival650,DetectSteelSeriesRival700
+    @comment
+\*-------------------------------------------------------------------*/
+
 RGBController_SteelSeriesRival::RGBController_SteelSeriesRival(SteelSeriesRivalController* rival_ptr)
 {
     rival       = rival_ptr;
-    
+
     name        = rival->GetDeviceName();
     vendor      = "SteelSeries";
-    type        = DEVICE_TYPE_MOUSE; 
+    type        = DEVICE_TYPE_MOUSE;
     description = "SteelSeries Rival Device";
     location    = rival->GetDeviceLocation();
     serial      = rival->GetSerialString();
@@ -57,14 +68,12 @@ RGBController_SteelSeriesRival::RGBController_SteelSeriesRival(SteelSeriesRivalC
     mode Pulsate;
     Pulsate.name       = "Pulsate";
     Pulsate.value      = STEELSERIES_RIVAL_PULSATE;
-    Pulsate.flags      = MODE_FLAG_HAS_SPEED | MODE_FLAG_HAS_PER_LED_COLOR;
+    Pulsate.flags      = MODE_FLAG_HAS_SPEED | MODE_FLAG_HAS_PER_LED_COLOR | MODE_FLAG_MANUAL_SAVE;
     Pulsate.color_mode = MODE_COLORS_PER_LED;
     Pulsate.speed_min  = STEELSERIES_RIVAL_EFFECT_PULSATE_MIN;
     Pulsate.speed_max  = STEELSERIES_RIVAL_EFFECT_PULSATE_MAX;
     Pulsate.speed      = STEELSERIES_RIVAL_EFFECT_PULSATE_MID;
     modes.push_back(Pulsate);
-
-
 
     SetupZones();
 }
@@ -103,7 +112,7 @@ void RGBController_SteelSeriesRival::SetupZones()
         wheel_zone.leds_count   = 1;
         wheel_zone.matrix_map   = NULL;
         zones.push_back(wheel_zone);
-        
+
         led wheel_led;
         wheel_led.name          = "Scroll Wheel";
         wheel_led.value         = 1;
@@ -212,7 +221,7 @@ void RGBController_SteelSeriesRival::UpdateZoneLEDs(int zone)
         unsigned char blu = RGBGetBValue(zones[zone].colors[i]);
         rival->SetColor(zones[zone].leds[i].value, red, grn, blu);
     }
-}   
+}
 
 void RGBController_SteelSeriesRival::UpdateSingleLED(int led)
 {
@@ -229,7 +238,7 @@ void RGBController_SteelSeriesRival::SetCustomMode()
 
 void RGBController_SteelSeriesRival::DeviceUpdateMode()
 {
-    /* Strictly, the device actually does support different modes for the 
+    /* Strictly, the device actually does support different modes for the
      * different zones, but we don't support that. */
     //steelseries_type mouse_type = rival->GetMouseType();
     switch (modes[active_mode].value)

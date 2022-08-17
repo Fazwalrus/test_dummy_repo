@@ -8,15 +8,26 @@
 
 #include "RGBController_MSIRGB.h"
 
-RGBController_MSIRGB::RGBController_MSIRGB(MSIRGBController* msi_ptr)
+/**------------------------------------------------------------------*\
+    @name MSI RGB
+    @category Motherboard
+    @type SuperIO
+    @save :x:
+    @direct :white_check_mark:
+    @effects :x:
+    @detectors DetectMSIRGBControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
+RGBController_MSIRGB::RGBController_MSIRGB(MSIRGBController* controller_ptr)
 {
-    msi = msi_ptr;
+    controller  = controller_ptr;
 
     name        = "MSI Motherboard";
     vendor      = "MSI";
     type        = DEVICE_TYPE_MOTHERBOARD;
     description = "MSI-RGB Device";
-    
+
     mode Direct;
     Direct.name       = "Direct";
     Direct.value      = 0;
@@ -29,7 +40,7 @@ RGBController_MSIRGB::RGBController_MSIRGB(MSIRGBController* msi_ptr)
 
 RGBController_MSIRGB::~RGBController_MSIRGB()
 {
-    delete msi;
+    delete controller;
 }
 
 void RGBController_MSIRGB::SetupZones()
@@ -62,7 +73,7 @@ void RGBController_MSIRGB::DeviceUpdateLEDs()
     unsigned char grn   = RGBGetGValue(color);
     unsigned char blu   = RGBGetBValue(color);
 
-    msi->SetColor(red, grn, blu);
+    controller->SetColor(red, grn, blu);
 }
 
 void RGBController_MSIRGB::UpdateZoneLEDs(int /*zone*/)
@@ -73,11 +84,6 @@ void RGBController_MSIRGB::UpdateZoneLEDs(int /*zone*/)
 void RGBController_MSIRGB::UpdateSingleLED(int /*led*/)
 {
     DeviceUpdateLEDs();
-}
-
-void RGBController_MSIRGB::SetCustomMode()
-{
-
 }
 
 void RGBController_MSIRGB::DeviceUpdateMode()

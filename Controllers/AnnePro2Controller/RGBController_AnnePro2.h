@@ -14,7 +14,7 @@
 class RGBController_AnnePro2 : public RGBController
 {
 public:
-    RGBController_AnnePro2(AnnePro2Controller* annepro2_ptr);
+    RGBController_AnnePro2(AnnePro2Controller* controller_ptr);
     ~RGBController_AnnePro2();
 
     void        SetupZones();
@@ -24,9 +24,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    AnnePro2Controller*   annepro2;
+    AnnePro2Controller*   controller;
 };

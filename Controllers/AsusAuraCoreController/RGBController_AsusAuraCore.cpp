@@ -8,22 +8,33 @@
 
 #include "RGBController_AsusAuraCore.h"
 
-RGBController_AuraCore::RGBController_AuraCore(AuraCoreController* aura_ptr)
+/**------------------------------------------------------------------*\
+    @name Asus AURA Core
+    @category Keyboard,LEDStrip
+    @type USB
+    @save :x:
+    @direct :rotating_light:
+    @effects :white_check_mark:
+    @detectors DetectAsusAuraCoreControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
+RGBController_AuraCore::RGBController_AuraCore(AuraCoreController* controller_ptr)
 {
-    aura        = aura_ptr;
+    controller  = controller_ptr;
 
     name        = "ASUS Aura Core Device";
     vendor      = "ASUS";
-    location    = aura->GetDeviceLocation();
-    serial      = aura->GetSerialString();    
+    location    = controller->GetDeviceLocation();
+    serial      = controller->GetSerialString();
     description = "ASUS Aura Core Device";
     type        = DEVICE_TYPE_UNKNOWN;
 
-    if(aura->aura_device.aura_type == AURA_CORE_DEVICE_KEYBOARD)
+    if(controller->aura_device.aura_type == AURA_CORE_DEVICE_KEYBOARD)
     {
         SetupKeyboard();
     }
-    else if(aura->aura_device.aura_type == AURA_CORE_DEVICE_GA15DH)
+    else if(controller->aura_device.aura_type == AURA_CORE_DEVICE_GA15DH)
     {
         SetupGA15DH();
     }
@@ -33,39 +44,39 @@ RGBController_AuraCore::RGBController_AuraCore(AuraCoreController* aura_ptr)
 
 void RGBController_AuraCore::SetupKeyboard()
 {
-    name        = "ASUS Aura Keyboard";
-    vendor      = "ASUS";
-    type        = DEVICE_TYPE_KEYBOARD;
-    description = "ASUS Aura Core Device";
+    name                    = "ASUS Aura Keyboard";
+    vendor                  = "ASUS";
+    type                    = DEVICE_TYPE_KEYBOARD;
+    description             = "ASUS Aura Core Device";
 
     mode Static;
-    Static.name       = "Static";
-    Static.value      = AURA_CORE_MODE_STATIC;
-    Static.flags      = MODE_FLAG_HAS_PER_LED_COLOR;
-    Static.color_mode = MODE_COLORS_PER_LED;
+    Static.name             = "Static";
+    Static.value            = AURA_CORE_MODE_STATIC;
+    Static.flags            = MODE_FLAG_HAS_PER_LED_COLOR;
+    Static.color_mode       = MODE_COLORS_PER_LED;
     modes.push_back(Static);
 
     mode Breathing;
-    Breathing.name       = "Breathing";
-    Breathing.value      = AURA_CORE_MODE_BREATHING;
-    Breathing.flags      = MODE_FLAG_HAS_PER_LED_COLOR;
-    Breathing.color_mode = MODE_COLORS_PER_LED;
+    Breathing.name          = "Breathing";
+    Breathing.value         = AURA_CORE_MODE_BREATHING;
+    Breathing.flags         = MODE_FLAG_HAS_PER_LED_COLOR;
+    Breathing.color_mode    = MODE_COLORS_PER_LED;
     modes.push_back(Breathing);
 
     mode ColorCycle;
-    ColorCycle.name       = "Color Cycle";
-    ColorCycle.value      = AURA_CORE_MODE_SPECTRUM_CYCLE;
-    ColorCycle.flags      = 0;
-    ColorCycle.color_mode = MODE_COLORS_NONE;
+    ColorCycle.name         = "Color Cycle";
+    ColorCycle.value        = AURA_CORE_MODE_SPECTRUM_CYCLE;
+    ColorCycle.flags        = 0;
+    ColorCycle.color_mode   = MODE_COLORS_NONE;
     modes.push_back(ColorCycle);
 }
 
 void RGBController_AuraCore::SetupGA15DH()
 {
-    name        = "ASUS Aura GA15DH";
-    vendor      = "ASUS";
-    type        = DEVICE_TYPE_LEDSTRIP;
-    description = "ASUS Aura Core Device";
+    name                    = "ASUS Aura GA15DH";
+    vendor                  = "ASUS";
+    type                    = DEVICE_TYPE_LEDSTRIP;
+    description             = "ASUS Aura Core Device";
 
     mode Static;
     Static.name             = "Static";
@@ -149,23 +160,23 @@ void RGBController_AuraCore::SetupGA15DH()
     modes.push_back(Irradiation);
 
     mode Direct;
-    Static.name       = "Direct";
-    Static.value      = AURA_CORE_MODE_DIRECT;
-    Static.flags      = MODE_FLAG_HAS_PER_LED_COLOR;
-    Static.color_mode = MODE_COLORS_PER_LED;
+    Static.name             = "Direct";
+    Static.value            = AURA_CORE_MODE_DIRECT;
+    Static.flags            = MODE_FLAG_HAS_PER_LED_COLOR;
+    Static.color_mode       = MODE_COLORS_PER_LED;
     modes.push_back(Static);
 }
 
 RGBController_AuraCore::~RGBController_AuraCore()
 {
-    delete aura;
+    delete controller;
 }
 
 void RGBController_AuraCore::SetupZones()
 {
     zone auraZone;
 
-    if(aura->aura_device.aura_type == AURA_CORE_DEVICE_KEYBOARD)
+    if(controller->aura_device.aura_type == AURA_CORE_DEVICE_KEYBOARD)
     {
         auraZone.name       = "Keyboard";
         auraZone.type       = ZONE_TYPE_SINGLE;
@@ -174,7 +185,7 @@ void RGBController_AuraCore::SetupZones()
         auraZone.leds_count = 4;
         auraZone.matrix_map = NULL;
     }
-    else if(aura->aura_device.aura_type == AURA_CORE_DEVICE_GA15DH)
+    else if(controller->aura_device.aura_type == AURA_CORE_DEVICE_GA15DH)
     {
         auraZone.name       = "GA15DH";
         auraZone.type       = ZONE_TYPE_LINEAR;
@@ -236,7 +247,7 @@ void RGBController_AuraCore::UpdateZoneLEDs(int /*zone*/)
             aura_colors.push_back(new_color);
         }
 
-        aura->UpdateDirect(aura_colors);
+        controller->UpdateDirect(aura_colors);
     }
     else if(modes[active_mode].color_mode == MODE_COLORS_PER_LED)
     {
@@ -286,7 +297,7 @@ void RGBController_AuraCore::UpdateSingleLED(int led)
         }
     }
 
-    aura->SendUpdate
+    controller->SendUpdate
             (
             led,
             curr_mode.value,
@@ -297,20 +308,15 @@ void RGBController_AuraCore::UpdateSingleLED(int led)
             blue
             );
 
-    aura->SendSet();
-    aura->SendApply();
-}
-
-void RGBController_AuraCore::SetCustomMode()
-{
-    active_mode = 0;
+    controller->SendSet();
+    controller->SendApply();
 }
 
 void RGBController_AuraCore::DeviceUpdateMode()
 {
     if(modes[active_mode].value == AURA_CORE_MODE_DIRECT)
     {
-        aura->InitDirectMode();
+        controller->InitDirectMode();
     }
     else
     {

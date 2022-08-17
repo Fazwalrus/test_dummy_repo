@@ -16,6 +16,9 @@
 #include <chrono>
 #include <mutex>
 
+/*------------------------------------------------------------------*\
+| RGB Color Type and Conversion Macros                               |
+\*------------------------------------------------------------------*/
 typedef unsigned int RGBColor;
 
 #define RGBGetRValue(rgb)   (rgb & 0x000000FF)
@@ -54,6 +57,9 @@ enum
     MODE_DIRECTION_VERTICAL     = 5,        /* Mode direction vertical          */
 };
 
+/*------------------------------------------------------------------*\
+| Mode Color Types                                                   |
+\*------------------------------------------------------------------*/
 enum
 {
     MODE_COLORS_NONE            = 0,        /* Mode has no colors               */
@@ -80,7 +86,7 @@ public:
     unsigned int        brightness_max; /*brightness max value      */
     unsigned int        colors_min; /* minimum number of mode colors*/
     unsigned int        colors_max; /* maximum numver of mode colors*/
-    
+
     /*--------------------------------------------------------------*\
     | Mode Settings                                                  |
     \*--------------------------------------------------------------*/
@@ -98,12 +104,18 @@ public:
     ~mode();
 };
 
+/*------------------------------------------------------------------*\
+| LED Struct                                                         |
+\*------------------------------------------------------------------*/
 typedef struct
 {
     std::string         name;   /* LED name                     */
     unsigned int        value;  /* Device-specific LED value    */
 } led;
 
+/*------------------------------------------------------------------*\
+| Zone Types                                                         |
+\*------------------------------------------------------------------*/
 typedef int zone_type;
 
 enum
@@ -113,6 +125,38 @@ enum
     ZONE_TYPE_MATRIX
 };
 
+/*------------------------------------------------------------------*\
+| Matrix Map Struct                                                  |
+\*------------------------------------------------------------------*/
+typedef struct
+{
+    unsigned int            height;
+    unsigned int            width;
+    unsigned int *          map;
+} matrix_map_type;
+
+/*------------------------------------------------------------------*\
+| Zone Struct                                                        |
+\*------------------------------------------------------------------*/
+typedef struct
+{
+    std::string             name;           /* Zone name                */
+    zone_type               type;           /* Zone type                */
+    led *                   leds;           /* List of LEDs in zone     */
+    RGBColor *              colors;         /* Colors of LEDs in zone   */
+    unsigned int            start_idx;      /* Start index of led/color */
+    unsigned int            leds_count;     /* Number of LEDs in zone   */
+    unsigned int            leds_min;       /* Minimum number of LEDs   */
+    unsigned int            leds_max;       /* Maximum number of LEDs   */
+    matrix_map_type *       matrix_map;     /* Matrix map pointer       */
+} zone;
+
+/*------------------------------------------------------------------*\
+| Device Types                                                       |
+|   The enum order should be maintained as is for the API however    |
+|   DEVICE_TYPE_UNKNOWN needs to remain last. Any new device types   |
+|   need to be inserted at the end of the list but before unknown.   |
+\*------------------------------------------------------------------*/
 typedef int device_type;
 
 enum
@@ -132,32 +176,17 @@ enum
     DEVICE_TYPE_SPEAKER,
     DEVICE_TYPE_VIRTUAL,
     DEVICE_TYPE_STORAGE,
-    DEVICE_TYPE_UNKNOWN
+    DEVICE_TYPE_CASE,
+    DEVICE_TYPE_MICROPHONE,
+    DEVICE_TYPE_UNKNOWN,
 };
 
-std::string device_type_to_str(device_type type);
-
-typedef struct
-{
-    unsigned int            height;
-    unsigned int            width;
-    unsigned int *          map;
-} matrix_map_type;
-
-typedef struct
-{
-    std::string             name;           /* Zone name                */
-    zone_type               type;           /* Zone type                */
-    led *                   leds;           /* List of LEDs in zone     */
-    RGBColor *              colors;         /* Colors of LEDs in zone   */
-    unsigned int            start_idx;      /* Start index of led/color */
-    unsigned int            leds_count;     /* Number of LEDs in zone   */
-    unsigned int            leds_min;       /* Minimum number of LEDs   */
-    unsigned int            leds_max;       /* Maximum number of LEDs   */
-    matrix_map_type *       matrix_map;     /* Matrix map pointer       */
-} zone;
-
+/*------------------------------------------------------------------*\
+| RGBController Callback Types                                       |
+\*------------------------------------------------------------------*/
 typedef void (*RGBControllerCallback)(void *);
+
+std::string device_type_to_str(device_type type);
 
 class RGBControllerInterface
 {
@@ -296,7 +325,7 @@ public:
     virtual void            DeviceUpdateMode()                          = 0;
     void                    DeviceSaveMode();
 
-    virtual void            SetCustomMode()                             = 0;
+    void                    SetCustomMode();
 
 private:
     std::thread*            DeviceCallThread;

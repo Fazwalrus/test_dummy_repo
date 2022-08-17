@@ -14,7 +14,7 @@
 class RGBController_CorsairLightingNode : public RGBController
 {
 public:
-    RGBController_CorsairLightingNode(CorsairLightingNodeController* corsair_ptr);
+    RGBController_CorsairLightingNode(CorsairLightingNodeController* controller_ptr);
     ~RGBController_CorsairLightingNode();
 
     void        SetupZones();
@@ -25,11 +25,10 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    CorsairLightingNodeController*   corsair;
-    std::vector<unsigned int>   leds_channel;
-    std::vector<unsigned int>   zones_channel;
+    CorsairLightingNodeController*  controller;
+    std::vector<unsigned int>       leds_channel;
+    std::vector<unsigned int>       zones_channel;
 };

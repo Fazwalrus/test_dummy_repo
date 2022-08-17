@@ -16,7 +16,7 @@
 /*----------------------------------------------------------------------------------------------*\
 | Definitions for Polychrome USB                                                                 |
 \*----------------------------------------------------------------------------------------------*/
-#define POLYCHROME_USB_NUM_MODES            15          /* Number of Polychrome USB modes       */
+#define POLYCHROME_USB_NUM_MODES            16          /* Number of Polychrome USB modes       */
 
 enum
 {
@@ -35,6 +35,7 @@ enum
     POLYCHROME_USB_MODE_NEON                = 0x0C,     /* Neon effect mode                     */
     POLYCHROME_USB_MODE_WATER               = 0x0D,     /* Water effect mode                    */
     POLYCHROME_USB_MODE_RAINBOW             = 0x0E,     /* Rainbow effect mode                  */
+    POLYCHROME_USB_MODE_DIRECT              = 0x0F,     /* CHROMA CONNECT effect mode           */
 };
 
 enum
@@ -99,6 +100,7 @@ struct PolychromeDeviceInfo
 {
     unsigned char           effect_channel;
     unsigned char           num_leds;
+	unsigned char			zone_type;
     PolychromeDeviceType    device_type;
 };
 
@@ -124,6 +126,12 @@ public:
                                                     unsigned char   speed,
                                                     RGBColor        rgb,
                                                     bool            allzone
+                                                    );
+
+    void                                        WriteAllZones
+                                                    (
+                                                    const std::vector<PolychromeZoneInfo> &zones_info,
+                                                    const std::vector<zone> &zones
                                                     );
 
     void                                        WriteHeader

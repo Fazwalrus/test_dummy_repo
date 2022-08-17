@@ -13,7 +13,7 @@
 class RGBController_HoltekA070 : public RGBController
 {
 public:
-    RGBController_HoltekA070(HoltekA070Controller* holtek_ptr);
+    RGBController_HoltekA070(HoltekA070Controller* controller_ptr);
     ~RGBController_HoltekA070();
 
     void        SetupZones();
@@ -23,9 +23,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    HoltekA070Controller*   holtek;
+    HoltekA070Controller* controller;
 };

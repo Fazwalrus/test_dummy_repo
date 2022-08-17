@@ -16,7 +16,7 @@
 class RGBController_HyperXMousemat : public RGBController
 {
 public:
-    RGBController_HyperXMousemat(HyperXMousematController* hyperx_ptr);
+    RGBController_HyperXMousemat(HyperXMousematController* controller_ptr);
     ~RGBController_HyperXMousemat();
 
     void        SetupZones();
@@ -27,14 +27,13 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
     void        KeepaliveThread();
     
 private:
-    HyperXMousematController* hyperx;
-    std::thread*              keepalive_thread;
-    std::atomic<bool>         keepalive_thread_run;
+    HyperXMousematController*                           controller;
+    std::thread*                                        keepalive_thread;
+    std::atomic<bool>                                   keepalive_thread_run;
     std::chrono::time_point<std::chrono::steady_clock>  last_update_time;
 };

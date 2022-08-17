@@ -13,7 +13,7 @@
 class RGBController_HoltekA1FA : public RGBController
 {
 public:
-    RGBController_HoltekA1FA(HoltekA1FAController* holtek_ptr);
+    RGBController_HoltekA1FA(HoltekA1FAController* controller_ptr);
     ~RGBController_HoltekA1FA();
 
     int         previous_mode = 0;  /* previous  mode              */
@@ -25,9 +25,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    HoltekA1FAController*   holtek;
+    HoltekA1FAController* controller;
 };

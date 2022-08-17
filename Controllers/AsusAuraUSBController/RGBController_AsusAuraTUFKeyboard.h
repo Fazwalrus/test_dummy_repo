@@ -13,18 +13,18 @@
 
 enum
 {
-	AURA_KEYBOARD_SPEED_MIN          = 0,
-	AURA_KEYBOARD_SPEED_MAX          = 15,
-	AURA_KEYBOARD_SPEED_DEFAULT      = 8,
-	AURA_KEYBOARD_BRIGHTNESS_MIN     = 0,
-	AURA_KEYBOARD_BRIGHTNESS_MAX     = 4,
-	AURA_KEYBOARD_BRIGHTNESS_DEFAULT = 4
+    AURA_KEYBOARD_SPEED_MIN          = 0,
+    AURA_KEYBOARD_SPEED_MAX          = 15,
+    AURA_KEYBOARD_SPEED_DEFAULT      = 8,
+    AURA_KEYBOARD_BRIGHTNESS_MIN     = 0,
+    AURA_KEYBOARD_BRIGHTNESS_MAX     = 4,
+    AURA_KEYBOARD_BRIGHTNESS_DEFAULT = 4
 };
 
 class RGBController_AuraTUFKeyboard : public RGBController
 {
 public:
-    RGBController_AuraTUFKeyboard(AuraTUFKeyboardController* aura_ptr);
+    RGBController_AuraTUFKeyboard(AuraTUFKeyboardController* controller_ptr);
     ~RGBController_AuraTUFKeyboard();
 
     void        SetupZones();
@@ -35,10 +35,9 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
     void        DeviceSaveMode();
 
 private:
-    AuraTUFKeyboardController*  aura;
+    AuraTUFKeyboardController*  controller;
 };

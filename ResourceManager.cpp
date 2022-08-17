@@ -195,6 +195,21 @@ void ResourceManager::RegisterI2CDeviceDetector(std::string name, I2CDeviceDetec
     i2c_device_detectors.push_back(detector);
 }
 
+void ResourceManager::RegisterI2CPCIDeviceDetector(std::string name, I2CPCIDeviceDetectorFunction detector, uint16_t ven_id, uint16_t dev_id, uint16_t subven_id, uint16_t subdev_id, uint8_t i2c_addr)
+{
+    I2CPCIDeviceDetectorBlock block;
+
+    block.name          = name;
+    block.function      = detector;
+    block.ven_id        = ven_id;
+    block.dev_id        = dev_id;
+    block.subven_id     = subven_id;
+    block.subdev_id     = subdev_id;
+    block.i2c_addr      = i2c_addr;
+
+    i2c_pci_device_detectors.push_back(block);
+}
+
 void ResourceManager::RegisterDeviceDetector(std::string name, DeviceDetectorFunction detector)
 {
     device_detector_strings.push_back(name);
@@ -219,13 +234,17 @@ void ResourceManager::RegisterHIDDeviceDetector(std::string name,
     block.usage         = usage;
 
     hid_device_detectors.push_back(block);
-    hid_device_detector_strings.push_back(name);
 }
 
 void ResourceManager::RegisterDynamicDetector(std::string name, DynamicDetectorFunction detector)
 {
     dynamic_detector_strings.push_back(name);
     dynamic_detectors.push_back(detector);
+}
+
+void ResourceManager::RegisterPreDetectionHook(PreDetectionHookFunction hook)
+{
+    pre_detection_hooks.push_back(hook);
 }
 
 void ResourceManager::RegisterDeviceListChangeCallback(DeviceListChangeCallback new_callback, void * new_callback_arg)
@@ -462,13 +481,6 @@ void ResourceManager::SetupConfigurationDirectory()
         | Create OpenRGB configuration directory if it doesn't exist                |
         \*-------------------------------------------------------------------------*/
         filesystem::create_directories(config_dir);
-
-        /*-------------------------------------------------------------------------*\
-        | Create OpenRGB plugins directory                                          |
-        \*-------------------------------------------------------------------------*/
-        std::string plugins_dir = config_dir + "plugins";
-
-        filesystem::create_directories(plugins_dir);
     }
     else
     {
@@ -479,6 +491,26 @@ void ResourceManager::SetupConfigurationDirectory()
 std::string ResourceManager::GetConfigurationDirectory()
 {
     return(config_dir);
+}
+
+void ResourceManager::SetConfigurationDirectory(std::string directory)
+{
+    /*-----------------------------------------------------*\
+    | Ensure the directory string has a trailing slash      |
+    \*-----------------------------------------------------*/
+    const char separator = filesystem::path::preferred_separator;
+
+    if(directory[directory.size() - 1] != separator)
+    {
+        directory += separator;
+    }
+
+    config_dir = directory;
+    settings_manager->LoadSettings(directory + "OpenRGB.json");
+    profile_manager->SetConfigurationDirectory(directory);
+
+    rgb_controllers_sizes.clear();
+    rgb_controllers_sizes   = profile_manager->LoadProfileToList("sizes", true);
 }
 
 NetworkServer* ResourceManager::GetServer()
@@ -560,15 +592,6 @@ const char *ResourceManager::GetDetectionString()
     return (detection_string);
 }
 
-void ResourceManager::SetConfigurationDirectory(std::string directory)
-{
-    settings_manager->LoadSettings(directory + "OpenRGB.json");
-    profile_manager->SetConfigurationDirectory(directory);
-
-    rgb_controllers_sizes.clear();
-    rgb_controllers_sizes   = profile_manager->LoadProfileToList("sizes", true);
-}
-
 void ResourceManager::Cleanup()
 {
     ResourceManager::get()->WaitForDeviceDetection();
@@ -618,6 +641,14 @@ void ResourceManager::Cleanup()
     }
 }
 
+void ResourceManager::ProcessPreDetectionHooks()
+{
+    for(unsigned int hook_idx = 0; hook_idx < pre_detection_hooks.size(); hook_idx++)
+    {
+        pre_detection_hooks[hook_idx]();
+    }
+}
+
 void ResourceManager::ProcessDynamicDetectors()
 {
     for(unsigned int detector_idx = 0; detector_idx < dynamic_detectors.size(); detector_idx++)
@@ -630,6 +661,11 @@ void ResourceManager::ProcessDynamicDetectors()
 
 void ResourceManager::DetectDevices()
 {
+    /*-----------------------------------------------------*\
+    | Process pre-detection hooks                           |
+    \*-----------------------------------------------------*/
+    ProcessPreDetectionHooks();
+
     /*-----------------------------------------------------*\
     | Process Dynamic Detectors                             |
     \*-----------------------------------------------------*/
@@ -703,7 +739,7 @@ void ResourceManager::DetectDevices()
         {
             DetectionEndCallbacks[callback_idx](DetectionEndCallbackArgs[callback_idx]);
         }
-    }   
+    }
 }
 
 void ResourceManager::DisableDetection()
@@ -817,7 +853,7 @@ void ResourceManager::DetectDevicesThreadFunction()
         current_hid_device = current_hid_device->next;
     }
 
-    percent_denominator = i2c_device_detectors.size() + device_detectors.size() + hid_device_count;
+    percent_denominator = i2c_device_detectors.size() + i2c_pci_device_detectors.size() + device_detectors.size() + hid_device_count;
 
     /*-------------------------------------------------*\
     | Start at 0% detection progress                    |
@@ -830,7 +866,7 @@ void ResourceManager::DetectDevicesThreadFunction()
     LOG_INFO("------------------------------------------------------");
     LOG_INFO("|             Detecting I2C interfaces               |");
     LOG_INFO("------------------------------------------------------");
-    
+
     bool i2c_interface_fail = false;
 
     for(unsigned int i2c_bus_detector_idx = 0; i2c_bus_detector_idx < i2c_bus_detectors.size() && detection_is_required.load(); i2c_bus_detector_idx++)
@@ -866,7 +902,7 @@ void ResourceManager::DetectDevicesThreadFunction()
         if(this_device_enabled)
         {
             DetectionProgressChanged();
-            
+
             i2c_device_detectors[i2c_detector_idx](busses);
         }
 
@@ -893,7 +929,7 @@ void ResourceManager::DetectDevicesThreadFunction()
         prev_count = rgb_controllers_hw.size();
 
         LOG_TRACE("[%s] detection end", detection_string);
-        
+
         /*-------------------------------------------------*\
         | Update detection percent                          |
         \*-------------------------------------------------*/
@@ -902,6 +938,73 @@ void ResourceManager::DetectDevicesThreadFunction()
         detection_percent = percent * 100.0f;
     }
 
+    /*-------------------------------------------------*\
+    | Detect i2c PCI devices                            |
+    \*-------------------------------------------------*/
+    LOG_INFO("------------------------------------------------------");
+    LOG_INFO("|               Detecting I2C PCI devices            |");
+    LOG_INFO("------------------------------------------------------");
+    for(unsigned int i2c_detector_idx = 0; i2c_detector_idx < i2c_pci_device_detectors.size() && detection_is_required.load(); i2c_detector_idx++)
+    {
+        detection_string = i2c_pci_device_detectors[i2c_detector_idx].name.c_str();
+
+        /*-------------------------------------------------*\
+        | Check if this detector is enabled                 |
+        \*-------------------------------------------------*/
+        bool this_device_enabled = true;
+        if(detector_settings.contains("detectors") && detector_settings["detectors"].contains(detection_string))
+        {
+            this_device_enabled = detector_settings["detectors"][detection_string];
+        }
+
+        LOG_DEBUG("[%s] is %s", detection_string, ((this_device_enabled == true) ? "enabled" : "disabled"));
+        if(this_device_enabled)
+        {
+            DetectionProgressChanged();
+
+            for(unsigned int bus = 0; bus < busses.size(); bus++)
+            {
+                if(busses[bus]->pci_vendor           == i2c_pci_device_detectors[i2c_detector_idx].ven_id    &&
+                   busses[bus]->pci_device           == i2c_pci_device_detectors[i2c_detector_idx].dev_id    &&
+                   busses[bus]->pci_subsystem_vendor == i2c_pci_device_detectors[i2c_detector_idx].subven_id &&
+                   busses[bus]->pci_subsystem_device == i2c_pci_device_detectors[i2c_detector_idx].subdev_id)
+                {
+                    i2c_pci_device_detectors[i2c_detector_idx].function(busses[bus], i2c_pci_device_detectors[i2c_detector_idx].i2c_addr, i2c_pci_device_detectors[i2c_detector_idx].name);
+                }
+            }
+        }
+
+        /*-------------------------------------------------*\
+        | If the device list size has changed, call the     |
+        | device list changed callbacks                     |
+        \*-------------------------------------------------*/
+        if(rgb_controllers_hw.size() != prev_count)
+        {
+            /*-------------------------------------------------*\
+            | First, load sizes for the new controllers         |
+            \*-------------------------------------------------*/
+            for(unsigned int controller_size_idx = prev_count; controller_size_idx < rgb_controllers_hw.size(); controller_size_idx++)
+            {
+                profile_manager->LoadDeviceFromListWithOptions(rgb_controllers_sizes, size_used, rgb_controllers_hw[controller_size_idx], true, false);
+            }
+
+            UpdateDeviceList();
+        }
+        else
+        {
+            LOG_DEBUG("[%s] no devices found", detection_string);
+        }
+        prev_count = rgb_controllers_hw.size();
+
+        LOG_TRACE("[%s] detection end", detection_string);
+
+        /*-------------------------------------------------*\
+        | Update detection percent                          |
+        \*-------------------------------------------------*/
+        percent = (i2c_device_detectors.size() + i2c_detector_idx + 1.0f) / percent_denominator;
+
+        detection_percent = percent * 100.0f;
+    }
 
     /*-------------------------------------------------*\
     | Detect HID devices                                |
@@ -1017,7 +1120,7 @@ void ResourceManager::DetectDevicesThreadFunction()
             }
             detection_string = "";
             DetectionProgressChanged();
-            
+
             unsigned int addr = (current_hid_device->vendor_id << 16) | current_hid_device->product_id;
 
             /*-----------------------------------------------------------------------------*\
@@ -1077,7 +1180,7 @@ void ResourceManager::DetectDevicesThreadFunction()
             \*-------------------------------------------------*/
             hid_device_count++;
 
-            percent = (i2c_device_detectors.size() + hid_device_count) / percent_denominator;
+            percent = (i2c_device_detectors.size() + i2c_pci_device_detectors.size() + hid_device_count) / percent_denominator;
 
             detection_percent = percent * 100.0f;
 
@@ -1118,7 +1221,7 @@ void ResourceManager::DetectDevicesThreadFunction()
         if(this_device_enabled)
         {
             DetectionProgressChanged();
-            
+
             device_detectors[detector_idx](rgb_controllers_hw);
         }
 
@@ -1163,7 +1266,7 @@ void ResourceManager::DetectDevicesThreadFunction()
     detection_string = "";
 
     DetectionProgressChanged();
-    
+
     DetectDeviceMutex.unlock();
 
     /*-----------------------------------------------------*\
@@ -1188,8 +1291,8 @@ void ResourceManager::DetectDevicesThreadFunction()
                                     "<p>One or more I2C/SMBus interfaces failed to initialize.</p>"
                                     "<p>RGB DRAM modules and some motherboards' onboard RGB lighting will not be available without I2C/SMBus.</p>"
 #ifdef _WIN32
-                                    "<p>On Windows, this is usually caused by a failure to load the inpout32 driver.  "
-                                    "You must run OpenRGB as administrator at least once to allow inpout32 to set up.</p>"
+                                    "<p>On Windows, this is usually caused by a failure to load the WinRing0 driver.  "
+                                    "You must run OpenRGB as administrator at least once to allow WinRing0 to set up.</p>"
 #endif
 #ifdef __linux__
                                     "<p>On Linux, this is usually because the i2c-dev module is not loaded.  "
@@ -1214,7 +1317,7 @@ void ResourceManager::UpdateDetectorSettings()
 {
     json                detector_settings;
     bool                save_settings       = false;
-    
+
     /*-------------------------------------------------*\
     | Open device disable list and read in disabled     |
     | device strings                                    |
@@ -1237,13 +1340,28 @@ void ResourceManager::UpdateDetectorSettings()
     }
 
     /*-------------------------------------------------*\
+    | Loop through all I2C PCI detectors and see if any |
+    | need to be saved to the settings                  |
+    \*-------------------------------------------------*/
+    for(unsigned int i2c_pci_detector_idx = 0; i2c_pci_detector_idx < i2c_pci_device_detectors.size(); i2c_pci_detector_idx++)
+    {
+        detection_string = i2c_pci_device_detectors[i2c_pci_detector_idx].name.c_str();
+
+        if(!(detector_settings.contains("detectors") && detector_settings["detectors"].contains(detection_string)))
+        {
+            detector_settings["detectors"][detection_string] = true;
+            save_settings = true;
+        }
+    }
+
+    /*-------------------------------------------------*\
     | Loop through all HID detectors and see if any     |
     | need to be saved to the settings                  |
     \*-------------------------------------------------*/
     for(unsigned int hid_detector_idx = 0; hid_detector_idx < hid_device_detectors.size(); hid_detector_idx++)
     {
         detection_string = hid_device_detectors[hid_detector_idx].name.c_str();
-        
+
         if(!(detector_settings.contains("detectors") && detector_settings["detectors"].contains(detection_string)))
         {
             detector_settings["detectors"][detection_string] = true;

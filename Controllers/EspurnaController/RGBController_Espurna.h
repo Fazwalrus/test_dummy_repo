@@ -13,7 +13,7 @@
 class RGBController_Espurna : public RGBController
 {
 public:
-    RGBController_Espurna(EspurnaController* espurna_ptr);
+    RGBController_Espurna(EspurnaController* controller_ptr);
     ~RGBController_Espurna();
 
     void        SetupZones();
@@ -24,9 +24,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    EspurnaController* espurna;
+    EspurnaController* controller;
 };

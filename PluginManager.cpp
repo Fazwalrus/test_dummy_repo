@@ -1,16 +1,24 @@
 #include "LogManager.h"
+#include "filesystem.h"
 #include "PluginManager.h"
+#include "OpenRGBThemeManager.h"
 
-PluginManager::PluginManager(bool dark_theme_val)
+PluginManager::PluginManager()
 {
     /*---------------------------------------------------------*\
     | Initialize plugin manager class variables                 |
     \*---------------------------------------------------------*/
-    dark_theme              = dark_theme_val;
     AddPluginCallbackVal    = nullptr;
     AddPluginCallbackArg    = nullptr;
     RemovePluginCallbackVal = nullptr;
     RemovePluginCallbackArg = nullptr;
+
+    /*-------------------------------------------------------------------------*\
+    | Create OpenRGB plugins directory                                          |
+    \*-------------------------------------------------------------------------*/
+    std::string plugins_dir = ResourceManager::get()->GetConfigurationDirectory() + plugins_path;
+
+    filesystem::create_directories(plugins_dir);
 }
 
 void PluginManager::RegisterAddPluginCallback(AddPluginCallback new_callback, void * new_callback_arg)
@@ -27,15 +35,14 @@ void PluginManager::RegisterRemovePluginCallback(RemovePluginCallback new_callba
 
 void PluginManager::ScanAndLoadPlugins()
 {
-    LOG_INFO("Loading plugins");
-
     /*---------------------------------------------------------*\
     | Get the plugins directory                                 |
     |                                                           |
     | The plugins directory is a directory named "plugins" in   |
     | the configuration directory                               |
     \*---------------------------------------------------------*/
-    const QDir plugins_dir = QString().fromStdString(ResourceManager::get()->GetConfigurationDirectory()) + "plugins/";
+    const QDir plugins_dir = QString(ResourceManager::get()->GetConfigurationDirectory().c_str()).append(plugins_path);
+    LOG_INFO("[PluginManager] Scanning plugin directory: %s", plugins_dir.absolutePath().toStdString().c_str());
 
     /*---------------------------------------------------------*\
     | Get a list of all files in the plugins directory          |
@@ -44,6 +51,7 @@ void PluginManager::ScanAndLoadPlugins()
 
     for(int i = 0; i < QDir(plugins_dir).entryList(QDir::Files).size(); i++)
     {
+        LOG_TRACE("[PluginManager] Found plugin file %s", QDir(plugins_dir).entryList(QDir::Files)[i].toStdString().c_str());
         FileList.push_back(QDir(plugins_dir).entryList(QDir::Files)[i].toStdString());
     }
 
@@ -97,6 +105,8 @@ void PluginManager::AddPlugin(std::string path)
             {
                 if(plugin->GetPluginAPIVersion() == OPENRGB_PLUGIN_API_VERSION)
                 {
+                    LOG_TRACE("[PluginManager] Plugin %s has a compatible API version", path.c_str());
+
                     /*-----------------------------------------------------*\
                     | Get the plugin information                            |
                     \*-----------------------------------------------------*/
@@ -184,6 +194,11 @@ void PluginManager::AddPlugin(std::string path)
                         LoadPlugin(path);
                     }
                 }
+                else
+                {
+                    loader->unload();
+                    LOG_WARNING("[PluginManager] Plugin %s has an incompatible API version", path.c_str());
+                }
             }
         }
     }
@@ -192,6 +207,8 @@ void PluginManager::AddPlugin(std::string path)
 void PluginManager::RemovePlugin(std::string path)
 {
     unsigned int plugin_idx;
+
+    LOG_TRACE("[PluginManager] Attempting to remove plugin %s", path.c_str());
 
     /*---------------------------------------------------------------------*\
     | Search active plugins to see if this path already exists              |
@@ -209,6 +226,7 @@ void PluginManager::RemovePlugin(std::string path)
     \*---------------------------------------------------------------------*/
     if(plugin_idx == ActivePlugins.size())
     {
+        LOG_TRACE("[PluginManager] Plugin %s not active", path.c_str());
         return;
     }
 
@@ -217,6 +235,7 @@ void PluginManager::RemovePlugin(std::string path)
     \*---------------------------------------------------------------------*/
     if(ActivePlugins[plugin_idx].loaded)
     {
+        LOG_TRACE("[PluginManager] Plugin %s is active, unloading", path.c_str());
         UnloadPlugin(path);
     }
 
@@ -258,6 +277,8 @@ void PluginManager::LoadPlugin(std::string path)
         ActivePlugins[plugin_idx].loaded = true;
 
         QObject* instance                = ActivePlugins[plugin_idx].loader->instance();
+
+        bool dark_theme = OpenRGBThemeManager::IsDarkTheme();
 
         if(instance)
         {

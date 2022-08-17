@@ -23,7 +23,7 @@ const char yes = 1;
 
 net_port::net_port()
 {
-
+    result_list = NULL;
 }
 
 //net_port (constructor)
@@ -36,7 +36,10 @@ net_port::net_port(const char * client_name, const char * port)
 
 net_port::~net_port()
 {
-    freeaddrinfo(result_list);
+    if(result_list)
+    {
+        freeaddrinfo(result_list);
+    }
 }
 
 bool net_port::udp_client(const char * client_name, const char * port)
@@ -44,7 +47,7 @@ bool net_port::udp_client(const char * client_name, const char * port)
     sockaddr_in myAddress;
 
 #ifdef WIN32
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != NO_ERROR)
+    if(WSAStartup(MAKEWORD(2, 2), &wsa) != NO_ERROR)
     {
         WSACleanup();
         return(false);
@@ -52,7 +55,7 @@ bool net_port::udp_client(const char * client_name, const char * port)
 #endif
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock == INVALID_SOCKET)
+    if(sock == INVALID_SOCKET)
     {
         WSACleanup();
         return(false);
@@ -62,7 +65,7 @@ bool net_port::udp_client(const char * client_name, const char * port)
     myAddress.sin_addr.s_addr = inet_addr("0.0.0.0");
     myAddress.sin_port = htons(0);
 
-    if (bind(sock, (sockaddr*)&myAddress, sizeof(myAddress)) == SOCKET_ERROR)
+    if(bind(sock, (sockaddr*)&myAddress, sizeof(myAddress)) == SOCKET_ERROR)
     {
         WSACleanup();
         return false;
@@ -76,6 +79,7 @@ bool net_port::udp_client(const char * client_name, const char * port)
     {
         memcpy(&addrDest, result_list->ai_addr, result_list->ai_addrlen);
         freeaddrinfo(result_list);
+        result_list = NULL;
         return(true);
     }
     else
@@ -103,7 +107,7 @@ bool net_port::tcp_client(const char * client_name, const char * port)
     result_list = NULL;
 
 #ifdef WIN32
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != NO_ERROR)
+    if(WSAStartup(MAKEWORD(2, 2), &wsa) != NO_ERROR)
     {
         WSACleanup();
         return(false);
@@ -112,7 +116,7 @@ bool net_port::tcp_client(const char * client_name, const char * port)
 
     port = strtok((char *)port, "\r");
 
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     getaddrinfo(client_name, port, &hints, &result_list);
 
@@ -127,11 +131,13 @@ bool net_port::tcp_client(const char * client_name, const char * port)
 
 bool net_port::tcp_client_connect()
 {
+    struct addrinfo *res;
     connected = false;
 
+    for(res = result_list; res; res = res->ai_next)
     {
-        sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock == INVALID_SOCKET)
+        sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+        if(sock == INVALID_SOCKET)
         {
             WSACleanup();
             return(false);
@@ -148,7 +154,7 @@ bool net_port::tcp_client_connect()
             connected = false;
             return(false);
         }
-        connect(sock, result_list->ai_addr, result_list->ai_addrlen);
+        connect(sock, res->ai_addr, res->ai_addrlen);
 
         FD_ZERO(&fdset);
         FD_SET(sock, &fdset);
@@ -161,14 +167,14 @@ bool net_port::tcp_client_connect()
         \*-------------------------------------------------*/
         setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(yes));
 
-        if (select(sock + 1, NULL, &fdset, NULL, &tv) == 1)
+        if(select(sock + 1, NULL, &fdset, NULL, &tv) == 1)
         {
             char so_error;
             socklen_t len = sizeof(so_error);
 
             getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len);
 
-            if (so_error == 0)
+            if(so_error == 0)
             {
                 connected = true;
                 arg = 0;
@@ -197,7 +203,7 @@ bool net_port::tcp_server(const char * port)
     | Windows requires WSAStartup before using sockets  |
     \*-------------------------------------------------*/
 #ifdef WIN32
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != NO_ERROR)
+    if(WSAStartup(MAKEWORD(2, 2), &wsa) != NO_ERROR)
     {
         WSACleanup();
         return false;
@@ -208,7 +214,7 @@ bool net_port::tcp_server(const char * port)
     | Create the server socket                          |
     \*-------------------------------------------------*/
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET)
+    if(sock == INVALID_SOCKET)
     {
         WSACleanup();
         return false;
@@ -226,7 +232,7 @@ bool net_port::tcp_server(const char * port)
     /*-------------------------------------------------*\
     | Bind the server socket                            |
     \*-------------------------------------------------*/
-    if (bind(sock, (sockaddr*)&myAddress, sizeof(myAddress)) == SOCKET_ERROR)
+    if(bind(sock, (sockaddr*)&myAddress, sizeof(myAddress)) == SOCKET_ERROR)
     {
         WSACleanup();
         return false;
@@ -295,7 +301,7 @@ int net_port::tcp_write(char * buffer, int length)
     timeval waitd;
     fd_set writefd;
 
-    for (unsigned int i = 0; i < clients.size(); i++)
+    for(unsigned int i = 0; i < clients.size(); i++)
     {
         val = length;
 
@@ -305,11 +311,11 @@ int net_port::tcp_write(char * buffer, int length)
         waitd.tv_sec = 5;
         waitd.tv_usec = 0;
 
-        if (select(*(clients[i]) + 1, NULL, &writefd, NULL, &waitd))
+        if(select(*(clients[i]) + 1, NULL, &writefd, NULL, &waitd))
         {
             val = send(*(clients[i]), (const char *)&length, sizeof(length), 0);
 
-            if (val == -1)
+            if(val == -1)
             {
                 clients.erase(clients.begin() + i);
                 return 0;
@@ -324,17 +330,17 @@ int net_port::tcp_write(char * buffer, int length)
         waitd.tv_sec = 5;
         waitd.tv_usec = 0;
 
-        if (select(*(clients[i]) + 1, NULL, &writefd, NULL, &waitd))
+        if(select(*(clients[i]) + 1, NULL, &writefd, NULL, &waitd))
         {
             val = send(*(clients[i]), buffer, length, 0);
 
-            if (val == -1)
+            if(val == -1)
             {
                 clients.erase(clients.begin() + i);
                 return 0;
             }
 
-            if (val != length)
+            if(val != length)
             {
                 ret = val;
             }

@@ -14,7 +14,7 @@
 class RGBController_CorsairWireless : public RGBController
 {
 public:
-    RGBController_CorsairWireless(CorsairWirelessController* corsair_ptr);
+    RGBController_CorsairWireless(CorsairWirelessController* controller_ptr);
     ~RGBController_CorsairWireless();
 
     int         physical_layout;
@@ -28,14 +28,13 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
     void        KeepaliveThread();
 
 private:
-    CorsairWirelessController*      corsair;
-    std::thread*                    keepalive_thread;
-    std::atomic<bool>               keepalive_thread_run;
+    CorsairWirelessController*                          controller;
+    std::thread*                                        keepalive_thread;
+    std::atomic<bool>                                   keepalive_thread_run;
     std::chrono::time_point<std::chrono::steady_clock>  last_update_time;
 };

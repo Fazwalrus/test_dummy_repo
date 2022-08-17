@@ -196,7 +196,7 @@ const char * ENESMBusController::GetChannelName(unsigned int led)
     case (unsigned char)ENE_LED_CHANNEL_DRAM_2:
         return(ene_channels[5]);
         break;
-    
+
     case (unsigned char)ENE_LED_CHANNEL_PCIE:
         return(ene_channels[6]);
         break;
@@ -273,7 +273,7 @@ void ENESMBusController::SetAllColorsDirect(RGBColor* colors)
 
     while(bytes_sent < (led_count * 3))
     {
-        unsigned int bytes_to_send = (led_count * 3) - bytes_sent;
+        int bytes_to_send = (led_count * 3) - bytes_sent;
 
         if(bytes_to_send > interface->GetMaxBlock())
         {
@@ -285,7 +285,7 @@ void ENESMBusController::SetAllColorsDirect(RGBColor* colors)
         bytes_sent += bytes_to_send;
     }
 
-    delete color_buf;
+    delete[] color_buf;
 }
 
 void ENESMBusController::SetAllColorsEffect(RGBColor* colors)
@@ -302,7 +302,7 @@ void ENESMBusController::SetAllColorsEffect(RGBColor* colors)
 
     while(bytes_sent < (led_count * 3))
     {
-        unsigned int bytes_to_send = (led_count * 3) - bytes_sent;
+        int bytes_to_send = (led_count * 3) - bytes_sent;
 
         if(bytes_to_send > interface->GetMaxBlock())
         {
@@ -315,8 +315,8 @@ void ENESMBusController::SetAllColorsEffect(RGBColor* colors)
     }
 
     ENERegisterWrite(ENE_REG_APPLY, ENE_APPLY_VAL);
-    
-    delete color_buf;
+
+    delete[] color_buf;
 }
 
 

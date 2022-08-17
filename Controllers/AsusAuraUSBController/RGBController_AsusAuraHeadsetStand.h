@@ -24,7 +24,7 @@ enum
 class RGBController_AuraHeadsetStand : public RGBController
 {
 public:
-    RGBController_AuraHeadsetStand(AuraHeadsetStandController* aura_ptr);
+    RGBController_AuraHeadsetStand(AuraHeadsetStandController* controller_ptr);
     ~RGBController_AuraHeadsetStand();
 
     void        SetupZones();
@@ -35,10 +35,9 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
     void        DeviceSaveMode();
 
 private:
-    AuraHeadsetStandController*  aura;
+    AuraHeadsetStandController*  controller;
 };

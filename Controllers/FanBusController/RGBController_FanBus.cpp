@@ -8,6 +8,17 @@
 
 #include "RGBController_FanBus.h"
 
+/**------------------------------------------------------------------*\
+    @name FanBus
+    @category Cooler
+    @type Serial
+    @save :x:
+    @direct :white_check_mark:
+    @effects :x:
+    @detectors DetectFanBusControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
 RGBController_FanBus::RGBController_FanBus(FanBusController* controller_ptr)
 {
     controller  = controller_ptr;
@@ -75,11 +86,6 @@ void RGBController_FanBus::UpdateZoneLEDs(int /*zone*/)
 void RGBController_FanBus::UpdateSingleLED(int /*led*/)
 {
     controller->SetLEDs(colors);
-}
-
-void RGBController_FanBus::SetCustomMode()
-{
-
 }
 
 void RGBController_FanBus::DeviceUpdateMode()

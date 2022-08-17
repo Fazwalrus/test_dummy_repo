@@ -11,8 +11,10 @@
 #include <string>
 #include "dependencies/dmiinfo.h"
 
-#define DETECTOR_NAME   "Gigabyte RGB Fusion 2 SMBus"
-#define VENDOR_NAME     "Gigabyte Technology Co., Ltd."
+#define DETECTOR_NAME                       "Gigabyte RGB Fusion 2 SMBus"
+#define VENDOR_NAME                         "Gigabyte Technology Co., Ltd."
+#define GIGABYTE_FOUND_MB_MESSAGE_EN        "[%s] Success - Found '%s' in the JSON list"
+#define GIGABYTE_NOT_FOUND_MB_MESSAGE_EN    "[%s] FAILED  - '%s' was not found in the JSON list. Do NOT enable if this is a USB based board."
 #define SMBUS_ADDRESS   0x68
 
 typedef struct
@@ -33,6 +35,7 @@ json rgb_fusion_2_smbus_motherboards[] =
     "B450 AORUS PRO-CF4",
     "B450 I AORUS PRO WIFI-CF",
     "B450M DS3H-CF",
+    "X299 DESIGNARE EX-CF",
     "X399 AORUS XTREME-CF",
     "X399 DESIGNARE EX-CF",
     "X470 AORUS GAMING 5 WIFI",
@@ -41,6 +44,7 @@ json rgb_fusion_2_smbus_motherboards[] =
     "X470 AORUS ULTRA GAMING",
     "X470 AORUS ULTRA GAMING-CF",
     "Z370 AORUS Gaming 5-CF"
+    "Z370 AORUS Ultra Gaming-CF"
 };
 
 /******************************************************************************************\
@@ -57,12 +61,12 @@ bool TestForGigabyteRGBFusion2SMBusController(i2c_smbus_interface* bus, unsigned
     bool pass = false;
 
     int res = bus->i2c_smbus_write_quick(address, I2C_SMBUS_WRITE);
-    
+
     if (res >= 0)
     {
         pass = true;
     }
-    
+
     return(pass);
 
 }   /* TestForRGBFusion2SMBusController() */
@@ -80,8 +84,6 @@ bool TestForGigabyteRGBFusion2SMBusController(i2c_smbus_interface* bus, unsigned
 
 void DetectGigabyteRGBFusion2SMBusControllers(std::vector<i2c_smbus_interface*>& busses)
 {
-    RGBFusion2SMBusController*          new_rgb_fusion;
-    RGBController_RGBFusion2SMBus*      new_controller;
     SettingsManager*                    set_man = ResourceManager::get()->GetSettingsManager();
     json                                device_settings;
 
@@ -92,8 +94,8 @@ void DetectGigabyteRGBFusion2SMBusControllers(std::vector<i2c_smbus_interface*>&
     | Get Linux LED settings from settings manager      |
     \*-------------------------------------------------*/
     device_settings = set_man->GetSettings(DETECTOR_NAME);
-    
-    if (!device_settings.contains("SupportedDevices"))
+
+    if(!device_settings.contains("SupportedDevices"))
     {
         //If supported devices is not found then write it to settings
         device_settings["SupportedDevices"] = rgb_fusion_2_smbus_motherboards;
@@ -113,7 +115,8 @@ void DetectGigabyteRGBFusion2SMBusControllers(std::vector<i2c_smbus_interface*>&
 
     if(found)
     {
-        for (unsigned int bus = 0; bus < busses.size(); bus++)
+        LOG_DEBUG(GIGABYTE_FOUND_MB_MESSAGE_EN, DETECTOR_NAME, dmi.getMainboard().c_str());
+        for(unsigned int bus = 0; bus < busses.size(); bus++)
         {
             IF_MOBO_SMBUS(busses[bus]->pci_vendor, busses[bus]->pci_device)
             {
@@ -122,15 +125,18 @@ void DetectGigabyteRGBFusion2SMBusControllers(std::vector<i2c_smbus_interface*>&
                     // TODO - Is this necessary? Or an artifact of my own system?
                     // Skip dmcd devices
                     std::string device_name = std::string(busses[bus]->device_name);
-                    if (device_name.find("dmdc") == std::string::npos)
+
+                    if(device_name.find("dmdc") == std::string::npos)
                     {
                         LOG_DEBUG(SMBUS_CHECK_DEVICE_MESSAGE_EN, DETECTOR_NAME, bus, VENDOR_NAME, SMBUS_ADDRESS);
+
                         // Check for RGB Fusion 2 controller at 0x68
-                        if (TestForGigabyteRGBFusion2SMBusController(busses[bus], SMBUS_ADDRESS))
+                        if(TestForGigabyteRGBFusion2SMBusController(busses[bus], SMBUS_ADDRESS))
                         {
-                            new_rgb_fusion = new RGBFusion2SMBusController(busses[bus], SMBUS_ADDRESS, dmi.getMainboard() );
-                            new_controller = new RGBController_RGBFusion2SMBus(new_rgb_fusion);
-                            ResourceManager::get()->RegisterRGBController(new_controller);
+                            RGBFusion2SMBusController*     controller     = new RGBFusion2SMBusController(busses[bus], SMBUS_ADDRESS, dmi.getMainboard() );
+                            RGBController_RGBFusion2SMBus* rgb_controller = new RGBController_RGBFusion2SMBus(controller);
+
+                            ResourceManager::get()->RegisterRGBController(rgb_controller);
                         }
                     }
                 }
@@ -140,6 +146,10 @@ void DetectGigabyteRGBFusion2SMBusControllers(std::vector<i2c_smbus_interface*>&
                 }
             }
         }
+    }
+    else
+    {
+        LOG_DEBUG(GIGABYTE_NOT_FOUND_MB_MESSAGE_EN, DETECTOR_NAME, dmi.getMainboard().c_str());
     }
 
 }   /* DetectRGBFusion2SMBusControllers() */

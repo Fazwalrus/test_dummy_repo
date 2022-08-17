@@ -15,7 +15,7 @@
 class RGBController_Crucial : public RGBController
 {
 public:
-    RGBController_Crucial(CrucialController* crucial_ptr);
+    RGBController_Crucial(CrucialController* controller_ptr);
     ~RGBController_Crucial();
 
     void        SetupZones();
@@ -26,9 +26,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    CrucialController*  crucial;
+    CrucialController*  controller;
 };

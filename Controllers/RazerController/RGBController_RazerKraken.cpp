@@ -1,6 +1,17 @@
 #include "RGBController_RazerKraken.h"
 #include "RazerDevices.h"
 
+/**------------------------------------------------------------------*\
+    @name Razer Kraken
+    @category Headset
+    @type USB
+    @save :robot:
+    @direct :white_check_mark:
+    @effects :white_check_mark:
+    @detectors DetectRazerKrakenControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
 RGBController_RazerKraken::RGBController_RazerKraken(RazerKrakenController* controller_ptr)
 {
     controller      = controller_ptr;
@@ -180,11 +191,6 @@ void RGBController_RazerKraken::UpdateZoneLEDs(int /*zone*/)
 void RGBController_RazerKraken::UpdateSingleLED(int /*led*/)
 {
     DeviceUpdateLEDs();
-}
-
-void RGBController_RazerKraken::SetCustomMode()
-{
-    active_mode = 0;
 }
 
 void RGBController_RazerKraken::DeviceUpdateMode()

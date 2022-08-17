@@ -14,7 +14,7 @@
 class RGBController_CorsairCommanderCore : public RGBController
 {
 public:
-    RGBController_CorsairCommanderCore(CorsairCommanderCoreController* corsair_ptr);
+    RGBController_CorsairCommanderCore(CorsairCommanderCoreController* controller_ptr);
     ~RGBController_CorsairCommanderCore();
 
     void        SetupZones();
@@ -24,10 +24,9 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    CorsairCommanderCoreController*     corsair;
+    CorsairCommanderCoreController*     controller;
     std::vector<int>                    fanleds{0};
 };

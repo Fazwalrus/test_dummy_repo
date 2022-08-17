@@ -16,7 +16,7 @@
 class RGBController_LogitechG933 : public RGBController
 {
 public:
-    RGBController_LogitechG933(LogitechG933Controller* logitech_ptr);
+    RGBController_LogitechG933(LogitechG933Controller* controller_ptr);
 
     void        SetupZones();
 
@@ -26,9 +26,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    LogitechG933Controller*   logitech;
+    LogitechG933Controller* controller;
 };

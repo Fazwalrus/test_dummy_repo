@@ -11,16 +11,10 @@
 #include "RGBController.h"
 #include "AsusAuraMouseController.h"
 
-enum {
-	AURA_MOUSE_BRIGHTNESS_MIN     = 0,
-	AURA_MOUSE_BRIGHTNESS_MAX     = 4,
-	AURA_MOUSE_BRIGHTNESS_DEFAULT = 4
-};
-
 class RGBController_AuraMouse : public RGBController
 {
 public:
-    RGBController_AuraMouse(AuraMouseController* aura_ptr);
+    RGBController_AuraMouse(AuraMouseController* controller_ptr);
     ~RGBController_AuraMouse();
 
     void        SetupZones();
@@ -31,10 +25,9 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
     void        DeviceSaveMode();
 
 private:
-    AuraMouseController*  aura;
+    AuraMouseController*  controller;
 };

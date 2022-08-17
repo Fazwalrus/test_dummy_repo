@@ -47,17 +47,26 @@ RazerController::RazerController(hid_device* dev_handle, hid_device* dev_argb_ha
     \*-----------------------------------------------------------------*/
     switch(dev_pid)
     {
+        case RAZER_BASILISK_V3_PID:
         case RAZER_BLACKWIDOW_ELITE_PID:
         case RAZER_BLACKWIDOW_2019_PID:
         case RAZER_BLACKWIDOW_V3_MINI_WIRED_PID:
+        case RAZER_BLADE_2021_BASE_V2_PID:
         case RAZER_CYNOSA_V2_PID:
         case RAZER_ORNATA_CHROMA_V2_PID:
         case RAZER_TARTARUS_CHROMA_PID:
         case RAZER_TARTARUS_V2_PID:
         case RAZER_DEATHADDER_CHROMA_PID:
+        case RAZER_DEATHADDER_ESSENTIAL_V2_PID:
+        case RAZER_DEATHADDER_V2_MINI_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_V2_PID:
         case RAZER_MAMBA_ELITE_PID:
+        case RAZER_NAGA_CLASSIC_PID:
         case RAZER_NAGA_EPIC_CHROMA_PID:
         case RAZER_NAGA_LEFT_HANDED_PID:
+        case RAZER_NAGA_PRO_WIRED_PID:
+        case RAZER_NAGA_PRO_WIRELESS_PID:
         case RAZER_KRAKEN_KITTY_EDITION_PID:
         case RAZER_BASE_STATION_V2_CHROMA_PID:
         case RAZER_MOUSE_BUNGEE_V3_CHROMA_PID:
@@ -79,7 +88,7 @@ RazerController::RazerController(hid_device* dev_handle, hid_device* dev_argb_ha
             dev_transaction_id = 0x3F;
             }
             break;
-            
+
         case RAZER_BLACKWIDOW_V3_MINI_WIRELESS_PID:
             {
             dev_transaction_id = 0x9F;
@@ -107,20 +116,26 @@ RazerController::RazerController(hid_device* dev_handle, hid_device* dev_argb_ha
     \*-----------------------------------------------------------------*/
     switch(dev_pid)
     {
-        case RAZER_GOLIATHUS_CHROMA_EXTENDED_PID:
-        case RAZER_GOLIATHUS_CHROMA_PID:
-        case RAZER_MAMBA_ELITE_PID:
-        case RAZER_TARTARUS_V2_PID:
+        case RAZER_BASILISK_V3_PID:
         case RAZER_BASE_STATION_CHROMA_PID:
         case RAZER_BASE_STATION_V2_CHROMA_PID:
-        case RAZER_MOUSE_BUNGEE_V3_CHROMA_PID:
         case RAZER_CHARGING_PAD_CHROMA_PID:
         case RAZER_CHROMA_HDK_PID:
         case RAZER_CORE_X_PID:
         case RAZER_DEATHADDER_ELITE_PID:
+        case RAZER_DEATHADDER_V2_MINI_PID:
+        case RAZER_DEATHADDER_ESSENTIAL_V2_PID:
         case RAZER_FIREFLY_V2_PID:
+        case RAZER_GOLIATHUS_CHROMA_EXTENDED_PID:
+        case RAZER_GOLIATHUS_CHROMA_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_V2_PID:
+        case RAZER_MAMBA_ELITE_PID:
+        case RAZER_MOUSE_BUNGEE_V3_CHROMA_PID:
+        case RAZER_NAGA_CLASSIC_PID:
         case RAZER_NAGA_LEFT_HANDED_PID:
         case RAZER_O11_DYNAMIC_PID:
+        case RAZER_TARTARUS_V2_PID:
             dev_led_id = RAZER_LED_ID_ZERO;
             break;
 
@@ -177,6 +192,7 @@ RazerController::RazerController(hid_device* dev_handle, hid_device* dev_argb_ha
         case RAZER_BLADE_LATE_2020_PID:
         case RAZER_BLADE_2021_ADVANCED_PID:
         case RAZER_BLADE_2021_BASE_PID:
+        case RAZER_BLADE_2021_BASE_V2_PID:
         case RAZER_BLADE_14_2021_PID:
         case RAZER_BLADE_PRO_2016_PID:
         case RAZER_BLADE_PRO_2017_PID:
@@ -209,6 +225,7 @@ RazerController::RazerController(hid_device* dev_handle, hid_device* dev_argb_ha
         case RAZER_BASILISK_ULTIMATE_WIRED_PID:
         case RAZER_BASILISK_ULTIMATE_WIRELESS_PID:
         case RAZER_BASILISK_V2_PID:
+        case RAZER_BASILISK_V3_PID:
         case RAZER_BLACKWIDOW_2019_PID:
         case RAZER_BLACKWIDOW_ELITE_PID:
         case RAZER_BLACKWIDOW_V3_PID:
@@ -226,6 +243,7 @@ RazerController::RazerController(hid_device* dev_handle, hid_device* dev_argb_ha
         case RAZER_CYNOSA_V2_PID:
         case RAZER_DEATHADDER_ELITE_PID:
         case RAZER_DEATHADDER_ESSENTIAL_PID:
+        case RAZER_DEATHADDER_ESSENTIAL_V2_PID:
         case RAZER_DEATHADDER_ESSENTIAL_WHITE_EDITION_PID:
         case RAZER_DEATHADDER_V2_MINI_PID:
         case RAZER_DEATHADDER_V2_PID:
@@ -248,13 +266,18 @@ RazerController::RazerController(hid_device* dev_handle, hid_device* dev_argb_ha
         case RAZER_LANCEHEAD_2017_WIRELESS_PID:
         case RAZER_LANCEHEAD_2019_WIRED_PID:
         case RAZER_LANCEHEAD_2019_WIRELESS_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_V2_PID:
         case RAZER_MAMBA_2018_WIRED_PID:
         case RAZER_MAMBA_2018_WIRELESS_PID:
         case RAZER_MAMBA_ELITE_PID:
         case RAZER_MOUSE_BUNGEE_V3_CHROMA_PID:
         case RAZER_MOUSE_DOCK_CHROMA_PID:
+        case RAZER_NAGA_CLASSIC_PID:
         case RAZER_NAGA_LEFT_HANDED_PID:
         case RAZER_NAGA_TRINITY_PID:
+        case RAZER_NAGA_PRO_WIRED_PID:
+        case RAZER_NAGA_PRO_WIRELESS_PID:
         case RAZER_NOMMO_CHROMA_PID:
         case RAZER_NOMMO_PRO_PID:
         case RAZER_O11_DYNAMIC_PID:
@@ -345,6 +368,29 @@ void RazerController::SetAddressableZoneSizes(unsigned char zone_1_size, unsigne
     razer_report report     = razer_create_addressable_size_report(zone_1_size, zone_2_size, zone_3_size, zone_4_size, zone_5_size, zone_6_size);
 
     razer_usb_send(&report);
+}
+
+unsigned char RazerController::GetMaxBrightness()
+{
+    /*-----------------------------------------------------*\
+    | Max brightness for most devices is 0xFF (255)         |
+    |   Add PIDs only for devices that use 0x64 (100)       |
+    |   or any another arbitrary value                      |
+    \*-----------------------------------------------------*/
+    unsigned char max_brightness = 255;
+
+    switch(dev_pid)
+    {
+        /*-----------------------------------------------------*\
+        | Mice                                                  |
+        \*-----------------------------------------------------*/
+        case RAZER_DEATHADDER_ESSENTIAL_V2_PID:
+
+            max_brightness = 100;
+            break;
+    }
+
+    return(max_brightness);
 }
 
 void RazerController::SetBrightness(unsigned char brightness)
@@ -440,6 +486,30 @@ void RazerController::SetModeWave(unsigned char direction)
     razer_set_mode_wave(direction);
 }
 
+bool RazerController::SupportsBreathing()
+{
+    /*-----------------------------------------------------*\
+    | Breathing Mode is assumed as supported in hardware    |
+    |   Add PIDs only for devices that DO NOT support the   |
+    |   hardware breathing mode i.e. Packet captures show   |
+    |   software driving the basic `Breathing` mode         |
+    \*-----------------------------------------------------*/
+    bool supports_breathing = true;
+
+    switch(dev_pid)
+    {
+        /*-----------------------------------------------------*\
+        | Mice                                                  |
+        \*-----------------------------------------------------*/
+        case RAZER_BASILISK_V3_PID:
+
+            supports_breathing = false;
+            break;
+    }
+
+    return(supports_breathing);
+}
+
 bool RazerController::SupportsReactive()
 {
     return(false);
@@ -480,6 +550,7 @@ bool RazerController::SupportsWave()
         case RAZER_BLADE_2020_BASE_PID:
         case RAZER_BLADE_2021_ADVANCED_PID:
         case RAZER_BLADE_2021_BASE_PID:
+        case RAZER_BLADE_2021_BASE_V2_PID:
         case RAZER_BLADE_14_2021_PID:
         case RAZER_BLADE_PRO_2016_PID:
         case RAZER_BLADE_PRO_2017_PID:
@@ -513,6 +584,7 @@ bool RazerController::SupportsWave()
         \*-----------------------------------------------------*/
         case RAZER_BASILISK_ULTIMATE_WIRED_PID:
         case RAZER_BASILISK_ULTIMATE_WIRELESS_PID:
+        case RAZER_BASILISK_V3_PID:
         case RAZER_DIAMONDBACK_CHROMA_PID:
         case RAZER_MAMBA_2015_WIRED_PID:
         case RAZER_MAMBA_2015_WIRELESS_PID:
@@ -538,6 +610,8 @@ bool RazerController::SupportsWave()
         case RAZER_CORE_X_PID:
         case RAZER_FIREFLY_PID:
         case RAZER_FIREFLY_V2_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_PID:
+        case RAZER_LAPTOP_STAND_CHROMA_V2_PID:
         case RAZER_MOUSE_BUNGEE_V3_CHROMA_PID:
         case RAZER_NOMMO_CHROMA_PID:
         case RAZER_NOMMO_PRO_PID:
@@ -598,9 +672,9 @@ razer_report RazerController::razer_create_report(unsigned char command_class, u
     new_report.transaction_id.id    = dev_transaction_id;
     new_report.remaining_packets    = 0x00;
     new_report.protocol_type        = 0x00;
+    new_report.data_size            = data_size;
     new_report.command_class        = command_class;
     new_report.command_id.id        = command_id;
-    new_report.data_size            = data_size;
 
     return new_report;
 }
@@ -1167,7 +1241,7 @@ void RazerController::razer_set_custom_frame(unsigned char row_index, unsigned c
                     report                  = razer_create_set_led_rgb_report(RAZER_STORAGE_NO_SAVE, RAZER_LED_ID_BACKLIGHT, rgb_data);
                     razer_usb_send(&report);
                     break;
-                    
+
                 case RAZER_DEATHADDER_CHROMA_PID:
                     report                  = razer_create_set_led_rgb_report(RAZER_STORAGE_NO_SAVE, RAZER_LED_ID_SCROLL_WHEEL, rgb_data);
                     razer_usb_send(&report);
@@ -1455,7 +1529,7 @@ void RazerController::razer_set_mode_none()
             report                          = razer_create_mode_none_extended_matrix_report(RAZER_STORAGE_NO_SAVE, dev_led_id);
             razer_usb_send(&report);
             break;
-        
+
         case RAZER_MATRIX_TYPE_CUSTOM:
             unsigned char rgb_data[6];
             rgb_data[0]             = 0x00;

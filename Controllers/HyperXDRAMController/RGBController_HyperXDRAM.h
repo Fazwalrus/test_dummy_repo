@@ -15,7 +15,7 @@
 class RGBController_HyperXDRAM : public RGBController
 {
 public:
-    RGBController_HyperXDRAM(HyperXDRAMController* hyperx_ptr);
+    RGBController_HyperXDRAM(HyperXDRAMController* controller_ptr);
     ~RGBController_HyperXDRAM();
 
     void        SetupZones();
@@ -26,9 +26,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    HyperXDRAMController* hyperx;
+    HyperXDRAMController* controller;
 };

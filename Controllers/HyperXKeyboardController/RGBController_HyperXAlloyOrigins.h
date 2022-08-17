@@ -16,7 +16,7 @@
 class RGBController_HyperXAlloyOrigins : public RGBController
 {
 public:
-    RGBController_HyperXAlloyOrigins(HyperXAlloyOriginsController* hyperx_ptr);
+    RGBController_HyperXAlloyOrigins(HyperXAlloyOriginsController* controller_ptr);
     ~RGBController_HyperXAlloyOrigins();
 
     void        SetupZones();
@@ -27,14 +27,13 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
     
     void        KeepaliveThread();
     
 private:
-    HyperXAlloyOriginsController*   hyperx;
-    std::thread*                    keepalive_thread;
-    std::atomic<bool>               keepalive_thread_run;
+    HyperXAlloyOriginsController*                       controller;
+    std::thread*                                        keepalive_thread;
+    std::atomic<bool>                                   keepalive_thread_run;
     std::chrono::time_point<std::chrono::steady_clock>  last_update_time;
 };

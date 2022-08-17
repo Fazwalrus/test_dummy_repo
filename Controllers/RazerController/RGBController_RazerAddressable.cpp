@@ -3,6 +3,17 @@
 
 #include <string.h>
 
+/**------------------------------------------------------------------*\
+    @name Razer ARGB
+    @category LEDStrip
+    @type USB
+    @save :robot:
+    @direct :white_check_mark:
+    @effects :white_check_mark:
+    @detectors DetectRazerARGBControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
 RGBController_RazerAddressable::RGBController_RazerAddressable(RazerController* controller_ptr)
 {
     controller      = controller_ptr;
@@ -138,7 +149,7 @@ void RGBController_RazerAddressable::SetupZones()
     leds.clear();
     colors.clear();
     zones.resize(zone_count);
-    
+
     /*---------------------------------------------------------*\
     | Fill in zone information based on device table            |
     \*---------------------------------------------------------*/
@@ -250,11 +261,6 @@ void RGBController_RazerAddressable::UpdateZoneLEDs(int /*zone*/)
 void RGBController_RazerAddressable::UpdateSingleLED(int /*led*/)
 {
     DeviceUpdateLEDs();
-}
-
-void RGBController_RazerAddressable::SetCustomMode()
-{
-    active_mode = 0;
 }
 
 void RGBController_RazerAddressable::DeviceUpdateMode()

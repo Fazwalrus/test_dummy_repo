@@ -14,7 +14,7 @@
 class RGBController_LogitechG810 : public RGBController
 {
 public:
-    RGBController_LogitechG810(LogitechG810Controller* logitech_ptr);
+    RGBController_LogitechG810(LogitechG810Controller* controller_ptr);
     ~RGBController_LogitechG810();
 
     void        SetupZones();
@@ -25,9 +25,8 @@ public:
     void        UpdateZoneLEDs(int zone);
     void        UpdateSingleLED(int led);
 
-    void        SetCustomMode();
     void        DeviceUpdateMode();
 
 private:
-    LogitechG810Controller*   logitech;
+    LogitechG810Controller* controller;
 };

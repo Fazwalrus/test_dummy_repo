@@ -10,6 +10,17 @@
 
 using namespace std::chrono_literals;
 
+/**------------------------------------------------------------------*\
+    @name Asus TUF Laptop
+    @category Keyboard
+    @type WMI
+    @save :x:
+    @direct :white_check_mark:
+    @effects :white_check_mark:
+    @detectors DetectAsusTUFLaptopWMIControllers
+    @comment
+\*-------------------------------------------------------------------*/
+
 RGBController_AsusTUFLaptopWMI::RGBController_AsusTUFLaptopWMI()
 {
     name        = "ASUS TUF Keyboard";
@@ -128,11 +139,6 @@ void RGBController_AsusTUFLaptopWMI::UpdateZoneLEDs(int /*zone*/)
 void RGBController_AsusTUFLaptopWMI::UpdateSingleLED(int /*led*/)
 {
     DeviceUpdateLEDs();
-}
-
-void RGBController_AsusTUFLaptopWMI::SetCustomMode()
-{
-    SetMode(0);
 }
 
 void RGBController_AsusTUFLaptopWMI::DeviceUpdateMode()
